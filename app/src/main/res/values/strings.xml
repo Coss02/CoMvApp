@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CoMovApp</string>
+    <string name="title_activity_map_view">mapView</string>
 </resources>
