@@ -11,11 +11,15 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+<<<<<<< HEAD
         android:text="Project Menu"
+=======
+>>>>>>> fc08b9e6dad13e6ecc60ca86820109f3cf45025c
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+<<<<<<< HEAD
         app:layout_constraintVertical_bias="0.136" />
 
     <Button
@@ -32,5 +36,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
+=======
+        app:layout_constraintVertical_bias="0.216" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        tools:layout_editor_absoluteX="160dp"
+        tools:layout_editor_absoluteY="358dp" />
+>>>>>>> fc08b9e6dad13e6ecc60ca86820109f3cf45025c
 
 </androidx.constraintlayout.widget.ConstraintLayout>
