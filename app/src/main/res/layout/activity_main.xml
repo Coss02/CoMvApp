@@ -11,41 +11,31 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
-        android:text="Project Menu"
-=======
->>>>>>> fc08b9e6dad13e6ecc60ca86820109f3cf45025c
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="180dp"
+        android:layout_marginEnd="145dp"
+        android:layout_marginBottom="122dp"
+        android:text="Bienvenido al mapa"
+        app:layout_constraintBottom_toTopOf="@+id/showMapButt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-<<<<<<< HEAD
-        app:layout_constraintVertical_bias="0.136" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/showMapActButt"
+        android:id="@+id/showMapButt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="163dp"
-        android:layout_marginTop="143dp"
-        android:layout_marginEnd="157dp"
-        android:layout_marginBottom="303dp"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="122dp"
+        android:layout_marginEnd="137dp"
+        android:layout_marginBottom="361dp"
         android:onClick="openMapActivity"
-        android:text="Mostrar Mapa"
+        android:text="Mostrar mapa"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
-=======
-        app:layout_constraintVertical_bias="0.216" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="160dp"
-        tools:layout_editor_absoluteY="358dp" />
->>>>>>> fc08b9e6dad13e6ecc60ca86820109f3cf45025c
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
