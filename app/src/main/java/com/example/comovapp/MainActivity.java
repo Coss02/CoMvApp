@@ -139,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
                     CellInfoNr cellInfoNr = (CellInfoNr) cellInfo;
                     CellIdentityNr id = (CellIdentityNr) cellInfoNr.getCellIdentity();
                     CellSignalStrengthNr signalStrengthNr = (CellSignalStrengthNr) ((CellInfoNr) cellInfo).getCellSignalStrength();
-                    text += "NR Cell (5G): CID: " + id.getNci() + ", MCC: " + id.getMccString() + ", MNC: " + id.getMncString() + ", TAC: " + id.getTac() +  ", SSRSRP: " + signalStrengthNr.getSsRsrp() + " dBm" +", LEVEL: " + cellInfoNr.getCellSignalStrength().getLevel() + "\n";
+                    text += "NR Cell (5G): CID: " + id.getNci() + ", MCC: " + id.getMccString() + ", MNC: " + id.getMncString() + ", TAC: " + id.getTac() +  ", RSSI:"+ cellInfoNr.getCellSignalStrength().getDbm() + " dBm" +", LEVEL: " + cellInfoNr.getCellSignalStrength().getLevel() + "\n";
+
                 }
             }
 
