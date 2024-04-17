@@ -28,12 +28,24 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.comovapp.cell.Cell;
+import com.example.comovapp.cell.CellCDMA;
+import com.example.comovapp.cell.CellGSM;
+import com.example.comovapp.cell.CellLTE;
+import com.example.comovapp.cell.CellNR;
+import com.example.comovapp.cell.CellWCDMA;
+import com.example.comovapp.terminalinfo.TerminalInfo;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -66,14 +78,24 @@ public class MainActivity extends AppCompatActivity {
     public void openInformationActivity(View v){
         String text = "";
 
-        text += showTerminalInfo();
-        text += showCellInfo();
+        TerminalInfo termInfo = showTerminalInfo();
+        Collection<Cell> cells = showCellInfo();
+
 
         TextView textView = findViewById(R.id.showInfoText);
-        textView.setText(text);
+        textView.setText(String.format("%s\n%s", termInfo.toString(), cellsText(cells)));
     }
 
-    public String showTerminalInfo() {
+    public String cellsText (Collection<Cell> cells){
+        StringBuilder str = new StringBuilder();
+        for(Cell cell: cells){
+            str.append(cell.toString()).append("\n");
+        }
+        return str.toString();
+    }
+
+    public TerminalInfo showTerminalInfo() {
+        TerminalInfo terInfo = new TerminalInfo();
         // Chequeamos permisos
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
@@ -84,20 +106,25 @@ public class MainActivity extends AppCompatActivity {
                                 Manifest.permission.READ_PHONE_STATE
                         }, 0);
             }
-            return "";
+            return terInfo;
         }
 
-        String text = "";
+        //String text = "";
         // Obtenemos el tipo de red para comunicaciones de voz
-        text += "Voice Network Type: " + this.telephonyManager.getVoiceNetworkType() + "\n";
+        //text += "Voice Network Type: " + this.telephonyManager.getVoiceNetworkType() + "\n";
+        terInfo.setVoiceNetworkType(this.telephonyManager.getVoiceNetworkType());
         // Obtenemos el tipo de red para comunicaciones de datos
-        text += "Data Network Type: " + this.telephonyManager.getDataNetworkType() + "\n";
+        //text += "Data Network Type: " + this.telephonyManager.getDataNetworkType() + "\n";
+        terInfo.setDataNetworkType(this.telephonyManager.getDataNetworkType());
         // Obtenemos el nombre del operador de red
-        text += "Network Operator Name: " + this.telephonyManager.getNetworkOperatorName() + "\n";
-        return text;
+        //text += "Network Operator Name: " + this.telephonyManager.getNetworkOperatorName() + "\n";
+        terInfo.setNetworkOperatorName(this.telephonyManager.getNetworkOperatorName());
+
+        return terInfo;
     }
 
-    public String showCellInfo() {
+    public Collection<Cell> showCellInfo() {
+        Collection<Cell> cells = new ArrayList<>();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 Log.i("TelephonyActivity", "Should show rationale");
@@ -107,31 +134,44 @@ public class MainActivity extends AppCompatActivity {
                                 Manifest.permission.ACCESS_FINE_LOCATION
                         }, 1);
             }
-            return "";
+            return cells;
         }
-        String text = "";
+        //String text = "";
         List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
         for (CellInfo cellInfo : cellInfoList) {
             if (cellInfo instanceof CellInfoGsm) { //2G
                 CellSignalStrengthGsm signalStrengthGsm = ((CellInfoGsm) cellInfo).getCellSignalStrength();
                 CellIdentityGsm identityGsm = ((CellInfoGsm) cellInfo).getCellIdentity();
                 // Concatenate GSM-specific info
-                text += "GSM Cell (2G): " + "CID: " + identityGsm.getCid() + ", LAC: " + identityGsm.getLac() + ", RSSI: " + signalStrengthGsm.getDbm() + " dBm\n";
+                //text += "GSM Cell (2G): " + "CID: " + identityGsm.getCid() + ", LAC: " + identityGsm.getLac() + ", RSSI: " + signalStrengthGsm.getDbm() + " dBm\n";
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getRssi(), signalStrengthGsm.getLevel());
+                    cells.add(cellGSM);
+                }else{
+                    CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getLevel());
+                    cells.add(cellGSM);
+                }
             } else if (cellInfo instanceof CellInfoCdma) { //2G
                 CellSignalStrengthCdma signalStrengthCdma = ((CellInfoCdma) cellInfo).getCellSignalStrength();
                 CellIdentityCdma identityCdma = ((CellInfoCdma) cellInfo).getCellIdentity();
                 // Concatenate CDMA-specific info
-                text += "CDMA Cell (2G): " + "Network ID: " + identityCdma.getNetworkId() + ", System ID: " + identityCdma.getSystemId() + ", Base Station ID: " + identityCdma.getBasestationId() + ", RSSI: " + signalStrengthCdma.getDbm() + " dBm\n";
+                //text += "CDMA Cell (2G): " + "Network ID: " + identityCdma.getNetworkId() + ", System ID: " + identityCdma.getSystemId() + ", Base Station ID: " + identityCdma.getBasestationId() + ", RSSI: " + signalStrengthCdma.getDbm() + " dBm\n";
+                CellCDMA cellCDMA = new CellCDMA(identityCdma.getNetworkId(), identityCdma.getSystemId(), identityCdma.getBasestationId(), signalStrengthCdma.getDbm(), signalStrengthCdma.getLevel());
+                cells.add(cellCDMA);
             }  else if (cellInfo instanceof CellInfoWcdma) { //3G
                 CellSignalStrengthWcdma signalStrengthWcdma = ((CellInfoWcdma) cellInfo).getCellSignalStrength();
                 CellIdentityWcdma identityWcdma = ((CellInfoWcdma) cellInfo).getCellIdentity();
                 // Concatenate WCDMA-specific info
-                text += "WCDMA Cell (3G): " + "LAC: " + identityWcdma.getLac() + ", CID: " + identityWcdma.getCid() + ", PSC: " + identityWcdma.getPsc() + ", RSSI: " + signalStrengthWcdma.getDbm() + " dBm\n";
+                //text += "WCDMA Cell (3G): " + "LAC: " + identityWcdma.getLac() + ", CID: " + identityWcdma.getCid() + ", PSC: " + identityWcdma.getPsc() + ", RSSI: " + signalStrengthWcdma.getDbm() + " dBm\n";
+                CellWCDMA cellWCDMA = new CellWCDMA(identityWcdma.getCid(), identityWcdma.getLac(), identityWcdma.getPsc(), signalStrengthWcdma.getDbm(), signalStrengthWcdma.getLevel());
+                cells.add(cellWCDMA);
             }else if (cellInfo instanceof CellInfoLte) { //4G
                 CellSignalStrengthLte signalStrengthLte = ((CellInfoLte) cellInfo).getCellSignalStrength();
                 CellIdentityLte identityLte = ((CellInfoLte) cellInfo).getCellIdentity();
                 // Concatenate LTE-specific info
-                text += "LTE Cell (4G): " + "CI: " + identityLte.getCi() + ", TAC: " + identityLte.getTac() + ", PCI: " + identityLte.getPci() + ", RSSI: " + signalStrengthLte.getDbm() + " dBm" + ", LEVEL: " + signalStrengthLte.getLevel() + "\n";
+                //text += "LTE Cell (4G): " + "CI: " + identityLte.getCi() + ", TAC: " + identityLte.getTac() + ", PCI: " + identityLte.getPci() + ", RSSI: " + signalStrengthLte.getDbm() + " dBm" + ", LEVEL: " + signalStrengthLte.getLevel() + "\n";
+                CellLTE cellLTE = new CellLTE(identityLte.getCi(), identityLte.getMcc(), identityLte.getMnc(), identityLte.getTac(), identityLte.getPci(), signalStrengthLte.getDbm(), signalStrengthLte.getLevel());
+                cells.add(cellLTE);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { //5G
                 if (cellInfo instanceof CellInfoNr) {
                     // 5G NR information concatenation would go here - Requires API 29 and above
@@ -139,14 +179,15 @@ public class MainActivity extends AppCompatActivity {
                     CellInfoNr cellInfoNr = (CellInfoNr) cellInfo;
                     CellIdentityNr id = (CellIdentityNr) cellInfoNr.getCellIdentity();
                     CellSignalStrengthNr signalStrengthNr = (CellSignalStrengthNr) ((CellInfoNr) cellInfo).getCellSignalStrength();
-                    text += "NR Cell (5G): CID: " + id.getNci() + ", MCC: " + id.getMccString() + ", MNC: " + id.getMncString() + ", TAC: " + id.getTac() +  ", RSSI:"+ cellInfoNr.getCellSignalStrength().getDbm() + " dBm" +", LEVEL: " + cellInfoNr.getCellSignalStrength().getLevel() + "\n";
-
+                    //text += "NR Cell (5G): NCI: " + id.getNci() + ", MCC: " + id.getMccString() + ", MNC: " + id.getMncString() + ", TAC: " + id.getTac() +  ", RSSI:"+ cellInfoNr.getCellSignalStrength().getDbm() + " dBm" +", LEVEL: " + cellInfoNr.getCellSignalStrength().getLevel() + "\n";
+                    CellNR cellNR = new CellNR((int)id.getNci(), id.getMccString(), id.getMncString(), id.getTac(), cellInfoNr.getCellSignalStrength().getDbm(), cellInfoNr.getCellSignalStrength().getLevel());
+                    cells.add(cellNR);
                 }
             }
 
 
         }
-        return text;
+        return cells;
     }
 
 

@@ -5,7 +5,7 @@ public class CellWCDMA extends Cell{
     private int LAC;
     private int PSC;
 
-    public CellWCDMA(int RSSI, int LEVEL, int CID, int LAC, int PSC) {
+    public CellWCDMA(int CID, int LAC, int PSC,int RSSI, int LEVEL) {
         super(3, RSSI, LEVEL);
         this.CID = CID;
         this.LAC = LAC;

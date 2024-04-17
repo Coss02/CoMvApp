@@ -7,12 +7,30 @@ import androidx.fragment.app.FragmentActivity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
+import android.telephony.CellIdentityCdma;
+import android.telephony.CellIdentityGsm;
+import android.telephony.CellIdentityLte;
+import android.telephony.CellIdentityNr;
+import android.telephony.CellIdentityWcdma;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellInfoNr;
+import android.telephony.CellInfoWcdma;
+import android.telephony.CellSignalStrengthCdma;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.CellSignalStrengthLte;
+import android.telephony.CellSignalStrengthNr;
+import android.telephony.CellSignalStrengthWcdma;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.comovapp.cell.Cell;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,6 +39,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.comovapp.databinding.ActivityMapViewBinding;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Collection;
+import java.util.List;
 
 public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
@@ -43,9 +67,18 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Imprimir aquí en fichero información de las celdas en JSON
+                addCellsToFile();
                 addMarkerAtCurrentLocation();
             }
         });
+    }
+
+    public void addCellsToFile(){
+        JSONObject j = new JSONObject();
+        JSONArray cellArray = new JSONArray();
+        // Collection<Cell> cells = MainActivity.showCellInfo(); Hace falta ver cómo leemos las celdas aquí
+
     }
 
     private void addMarkerAtCurrentLocation() {

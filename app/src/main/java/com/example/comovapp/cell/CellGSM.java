@@ -9,6 +9,11 @@ public class CellGSM extends Cell {
         this.CID = CID;
         this.LAC = LAC;
     }
+    public CellGSM(int CID, int LAC, int LEVEL) {
+        super(2, 9999, LEVEL); //9999 como error del RSSI
+        this.CID = CID;
+        this.LAC = LAC;
+    }
 
     public int getCID() {
         return CID;

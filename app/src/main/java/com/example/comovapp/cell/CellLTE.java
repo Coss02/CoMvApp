@@ -9,7 +9,7 @@ public class CellLTE extends Cell{
     private int TAC;
     private int PCI;
 
-    public CellLTE(int RSSI, int LEVEL, int CI, int MCC, int MNC, int TAC, int PCI) {
+    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, int RSSI, int LEVEL) {
         super(4, RSSI, LEVEL);
         this.CI = CI;
         this.MCC = MCC;

@@ -10,6 +10,9 @@ public class Cell {
         this.RSSI = RSSI;
         this.LEVEL = LEVEL;
     }
+    public Cell(){
+
+    }
 
     public int getGen() {
         return Gen;

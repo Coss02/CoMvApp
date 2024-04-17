@@ -2,12 +2,12 @@ package com.example.comovapp.cell;
 
 public class CellNR extends Cell{
     private int NCI;
-    private int MCC;
-    private int MNC;
+    private String MCC;
+    private String MNC;
     private int TAC;
 
 
-    public CellNR( int RSSI, int LEVEL, int NCI, int MCC, int MNC, int TAC) {
+    public CellNR( int NCI, String MCC, String MNC, int TAC, int RSSI, int LEVEL) {
         super(5, RSSI, LEVEL);
         this.NCI = NCI;
         this.MCC = MCC;
@@ -23,19 +23,19 @@ public class CellNR extends Cell{
         this.NCI = NCI;
     }
 
-    public int getMCC() {
+    public String getMCC() {
         return MCC;
     }
 
-    public void setMCC(int MCC) {
+    public void setMCC(String MCC) {
         this.MCC = MCC;
     }
 
-    public int getMNC() {
+    public String getMNC() {
         return MNC;
     }
 
-    public void setMNC(int MNC) {
+    public void setMNC(String MNC) {
         this.MNC = MNC;
     }
 
