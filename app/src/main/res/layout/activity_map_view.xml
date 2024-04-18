@@ -20,5 +20,4 @@
         android:layout_alignParentBottom="true"
         android:text="Mostrar Informacion"
         android:background="@color/cardview_light_background"/>
-
 </RelativeLayout>

@@ -43,6 +43,8 @@ import com.example.comovapp.cell.CellNR;
 import com.example.comovapp.cell.CellWCDMA;
 import com.example.comovapp.terminalinfo.TerminalInfo;
 
+import org.chromium.net.CronetEngine;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -51,7 +53,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private TelephonyManager telephonyManager;
-
 
 
     @Override

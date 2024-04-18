@@ -21,11 +21,13 @@ import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
 import android.telephony.CellInfoWcdma;
+import android.telephony.CellSignalStrength;
 import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
 import android.telephony.CellSignalStrengthWcdma;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +37,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -45,11 +48,18 @@ import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+
 
 public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private TelephonyManager telephonyManager;
     private ActivityMapViewBinding binding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,41 +67,78 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
         binding = ActivityMapViewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         // Set up the button click listener to add a marker
         Button button = findViewById(R.id.mapViewInformationButton);
+        this.telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Imprimir aquí en fichero información de las celdas en JSON
                 addCellsToFile();
                 addMarkerAtCurrentLocation();
+                fetchCellLocation(); // Fetch API data when activity starts
+
             }
         });
     }
 
-    public void addCellsToFile(){
+    public void addCellsToFile() {
         JSONObject j = new JSONObject();
         JSONArray cellArray = new JSONArray();
         // Collection<Cell> cells = MainActivity.showCellInfo(); Hace falta ver cómo leemos las celdas aquí
 
     }
-
     private void addMarkerAtCurrentLocation() {
         if (mMap != null) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            mMap.getMyLocation();
             LatLng currentLocation = new LatLng(mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude());
-            mMap.addMarker(new MarkerOptions().position(currentLocation).title("You are here"));
+            int signalStrength = getSignalStrength();
+            mMap.addMarker(new MarkerOptions()
+                    .position(currentLocation)
+                    .title("You are here")
+                    .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+        }
+    }
+
+    private int getSignalStrength() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return 0;
+        }
+        List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
+        for (CellInfo cellInfo : cellInfoList) {
+            if (cellInfo.isRegistered()) {
+                CellSignalStrength signalStrength = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    signalStrength = cellInfo.getCellSignalStrength();
+                }
+                return signalStrength.getDbm();  // dBm values
+            }
+        }
+        return 0;  // default or no signal
+    }
+    private float getColorForSignalStrength(int signalStrength) {
+        if (signalStrength > -75) {
+            return BitmapDescriptorFactory.HUE_GREEN;
+        } else if (signalStrength > -100) {
+            return BitmapDescriptorFactory.HUE_YELLOW;
+        } else {
+            return BitmapDescriptorFactory.HUE_RED;
+        }
+    }
+
+    private void checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
     }
 
@@ -99,6 +146,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         showPosition();
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setPadding(0, 0, 0, 100);  // Adjust padding (left, top, right, bottom)
 
         // Set a marker click listener
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -166,5 +215,29 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             }
         }
     }
+
+    public void fetchCellLocation() {
+        ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+        Call<ApiResponse> call = apiService.getCellLocation("1.1", "open", 250, 2, 7840, 200719106L);
+
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse apiResponse = response.body();
+                    // Log the results or update the UI
+                    Log.d("Location Data", "Lat: " + apiResponse.data.lat + ", Lon: " + apiResponse.data.lon);
+                } else {
+                    Log.e("API Error", "Failed to retrieve data");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Log.e("API Failure", t.getMessage());
+            }
+        });
+    }
+
 
 }
