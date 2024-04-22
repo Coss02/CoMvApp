@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.comovapp.cell.Cell;
+import com.example.comovapp.cell.CellLTE;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -57,6 +58,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -97,6 +100,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             }
         });
     }
+
+    /*
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
@@ -116,7 +121,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
     }
-
+    */
     public void addCellsToFile() {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
@@ -157,7 +162,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             int signalStrength = telephonyData.getCelldbm();
             mMap.addMarker(new MarkerOptions()
                     .position(currentLocation)
-                    .title("You are here")
                     .flat(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
 
@@ -193,10 +197,16 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         // Set a marker click listener
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
-                // Call function to show dialog
-                marker.setTitle("Información Avanzada");
-                showDialog(marker.getTitle(), marker.getSnippet());
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                if (!Objects.equals(marker.getTitle(), "Cell Position")){
+                    // Call function to show dialog
+                    marker.setTitle("Información de las celdas");
+                    marker.setSnippet(telephonyData.getInfo());
+                    showDialog(marker.getTitle(), marker.getSnippet());
+                }else{
+                    showDialog(marker.getTitle(), marker.getSnippet());
+                }
+
                 return true;
             }
         });
@@ -258,42 +268,44 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     }
 
     public void fetchCellLocation() {
+        Collection<CellLTE> fourGcells = telephonyData.getRegistered4GCells();
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
-        Call<ApiResponse> call = apiService.getCellLocation("1.1", "open", 250, 2, 7840, 200719106L);
-
-        call.enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse apiResponse = response.body();
-                    LatLng cellLocation = new LatLng(apiResponse.data.lat, apiResponse.data.lon);
-                    // Adding the marker with a custom icon on the map
-                    // Resize the icon
-                    Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);
-                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 100, 100, false); // Adjust width and height as needed
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mMap != null) {
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(cellLocation)
-                                        .title("Cell Position")
-                                        .snippet("Lat: " + apiResponse.data.lat + ", Lon: " + apiResponse.data.lon)
-                                        .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-                                // Ensure you have ic_cell_tower.png in your drawable folder
+        for(CellLTE fourGcell : fourGcells) {
+            Call<ApiResponse> call = apiService.getCellLocation("1.1", "open", fourGcell.getMCC(), fourGcell.getMNC(), fourGcell.getTAC(), fourGcell.getCI());
+            call.enqueue(new Callback<ApiResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        ApiResponse apiResponse = response.body();
+                        LatLng cellLocation = new LatLng(apiResponse.data.lat, apiResponse.data.lon);
+                        // Adding the marker with a custom icon on the map
+                        // Resize the icon
+                        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);
+                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 100, 100, false); // Adjust width and height as needed
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mMap != null) {
+                                    mMap.addMarker(new MarkerOptions()
+                                            .position(cellLocation)
+                                            .title("Celda CI:" + fourGcell.getCI())
+                                            .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
+                                            .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
+                                    // Ensure you have ic_cell_tower.png in your drawable folder
+                                }
                             }
-                        }
-                    });
-                } else {
-                    Log.e("API Error", "Failed to retrieve data");
+                        });
+                    } else {
+                        Log.e("API Error", "Failed to retrieve data");
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Log.e("API Failure", t.getMessage());
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                    Log.e("API Failure", Objects.requireNonNull(t.getMessage()));
+                }
+            });
+        }
     }
 
 

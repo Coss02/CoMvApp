@@ -107,7 +107,7 @@ public class TelephonyData {
                 CellIdentityLte identityLte = ((CellInfoLte) cellInfo).getCellIdentity();
                 // Concatenate LTE-specific info
                 //text += "LTE Cell (4G): " + "CI: " + identityLte.getCi() + ", TAC: " + identityLte.getTac() + ", PCI: " + identityLte.getPci() + ", RSSI: " + signalStrengthLte.getDbm() + " dBm" + ", LEVEL: " + signalStrengthLte.getLevel() + "\n";
-                CellLTE cellLTE = new CellLTE(identityLte.getCi(), identityLte.getMcc(), identityLte.getMnc(), identityLte.getTac(), identityLte.getPci(), signalStrengthLte.getDbm(), signalStrengthLte.getLevel());
+                CellLTE cellLTE = new CellLTE(identityLte.getCi(), identityLte.getMcc(), identityLte.getMnc(), identityLte.getTac(), identityLte.getPci(), cellInfo.isRegistered(), signalStrengthLte.getDbm(), signalStrengthLte.getLevel());
                 cells.add(cellLTE);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { //5G
                 if (cellInfo instanceof CellInfoNr) {
@@ -215,6 +215,22 @@ public class TelephonyData {
             }
         }
         return 0;  // default or no signal
+    }
+
+    public Collection<CellLTE> getRegistered4GCells(){
+        Collection<CellLTE> collection = new ArrayList<>();
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return collection;
+        }
+        for(Cell cell : cells){
+            if(cell instanceof CellLTE){
+                CellLTE cellLTE = (CellLTE) cell;
+                if(cellLTE.isRegistered()){
+                    collection.add(cellLTE);
+                }
+            }
+        }
+        return collection;
     }
 
 }

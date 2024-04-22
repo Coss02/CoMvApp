@@ -1,5 +1,7 @@
 package com.example.comovapp.cell;
 
+import android.telephony.CellInfo;
+
 import androidx.annotation.NonNull;
 
 public class CellLTE extends Cell{
@@ -9,13 +11,16 @@ public class CellLTE extends Cell{
     private int TAC;
     private int PCI;
 
-    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, int RSSI, int LEVEL) {
+    private boolean isRegistered;
+
+    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, boolean isRegistered, int RSSI, int LEVEL) {
         super(4, RSSI, LEVEL);
         this.CI = CI;
         this.MCC = MCC;
         this.MNC = MNC;
         this.TAC = TAC;
         this.PCI = PCI;
+        this.isRegistered = isRegistered;
     }
 
     public int getCI() {
@@ -56,6 +61,14 @@ public class CellLTE extends Cell{
 
     public void setMNC(int MNC) {
         this.MNC = MNC;
+    }
+
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public void setRegistered(boolean registered) {
+        isRegistered = registered;
     }
 
     @NonNull
