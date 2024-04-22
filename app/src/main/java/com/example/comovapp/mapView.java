@@ -43,6 +43,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.comovapp.databinding.ActivityMapViewBinding;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -225,8 +228,24 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse apiResponse = response.body();
-                    // Log the results or update the UI
-                    Log.d("Location Data", "Lat: " + apiResponse.data.lat + ", Lon: " + apiResponse.data.lon);
+                    LatLng cellLocation = new LatLng(apiResponse.data.lat, apiResponse.data.lon);
+                    // Adding the marker with a custom icon on the map
+                    // Resize the icon
+                    Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);
+                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 150, 150, false); // Adjust width and height as needed
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mMap != null) {
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(cellLocation)
+                                        .title("Cell Position")
+                                        .snippet("Lat: " + apiResponse.data.lat + ", Lon: " + apiResponse.data.lon)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
+                                // Ensure you have ic_cell_tower.png in your drawable folder
+                            }
+                        }
+                    });
                 } else {
                     Log.e("API Error", "Failed to retrieve data");
                 }
@@ -238,6 +257,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             }
         });
     }
+
 
 
 }
