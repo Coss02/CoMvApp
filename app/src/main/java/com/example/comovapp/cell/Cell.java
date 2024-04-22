@@ -42,6 +42,6 @@ public class Cell {
 
     @NonNull
     public String toString(){
-        return "Celda " + Gen + "G\n" + "RSSI: " + RSSI + "\n" + "LEVEL: " + LEVEL + "\n";
+        return "Celda " + Gen + "G   " + "RSSI: " + RSSI + "   " + "LEVEL: " + LEVEL + "\n";
     }
 }

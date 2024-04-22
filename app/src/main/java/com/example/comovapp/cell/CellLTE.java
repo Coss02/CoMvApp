@@ -60,9 +60,9 @@ public class CellLTE extends Cell{
 
     @NonNull
     public String toString(){
-        return "CI: " + CI + "\n" +
+        return "CI: " + CI + "   " +
                 "PCI: " + PCI + "\n" +
-                "MCC: " + MCC + "\n" +
+                "MCC: " + MCC + "   " +
                 "MNC: " + MNC + "\n" +
                 "TAC: " + TAC + "\n" +
                 super.toString();

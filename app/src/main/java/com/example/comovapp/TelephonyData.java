@@ -19,6 +19,7 @@ import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
 import android.telephony.CellInfoWcdma;
+import android.telephony.CellSignalStrength;
 import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
@@ -51,13 +52,14 @@ public class TelephonyData {
 
     private String info; //Toda la información formateada en un String
 
-    public TelephonyData(Activity activity){
+    public TelephonyData(Activity activity) {
         this.activity = activity;
         this.telephonyManager = (TelephonyManager) activity.getSystemService(TELEPHONY_SERVICE);
         this.cells = showCellInfo();
         this.terminalInfo = showTerminalInfo();
         this.info = telephonyInfo();
     }
+
     private Collection<Cell> showCellInfo() {
         Collection<Cell> cells = new ArrayList<>();
         if (ActivityCompat.checkSelfPermission(this.activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -82,7 +84,7 @@ public class TelephonyData {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getRssi(), signalStrengthGsm.getLevel());
                     cells.add(cellGSM);
-                }else{
+                } else {
                     CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getLevel());
                     cells.add(cellGSM);
                 }
@@ -93,14 +95,14 @@ public class TelephonyData {
                 //text += "CDMA Cell (2G): " + "Network ID: " + identityCdma.getNetworkId() + ", System ID: " + identityCdma.getSystemId() + ", Base Station ID: " + identityCdma.getBasestationId() + ", RSSI: " + signalStrengthCdma.getDbm() + " dBm\n";
                 CellCDMA cellCDMA = new CellCDMA(identityCdma.getNetworkId(), identityCdma.getSystemId(), identityCdma.getBasestationId(), signalStrengthCdma.getDbm(), signalStrengthCdma.getLevel());
                 cells.add(cellCDMA);
-            }  else if (cellInfo instanceof CellInfoWcdma) { //3G
+            } else if (cellInfo instanceof CellInfoWcdma) { //3G
                 CellSignalStrengthWcdma signalStrengthWcdma = ((CellInfoWcdma) cellInfo).getCellSignalStrength();
                 CellIdentityWcdma identityWcdma = ((CellInfoWcdma) cellInfo).getCellIdentity();
                 // Concatenate WCDMA-specific info
                 //text += "WCDMA Cell (3G): " + "LAC: " + identityWcdma.getLac() + ", CID: " + identityWcdma.getCid() + ", PSC: " + identityWcdma.getPsc() + ", RSSI: " + signalStrengthWcdma.getDbm() + " dBm\n";
                 CellWCDMA cellWCDMA = new CellWCDMA(identityWcdma.getCid(), identityWcdma.getLac(), identityWcdma.getPsc(), signalStrengthWcdma.getDbm(), signalStrengthWcdma.getLevel());
                 cells.add(cellWCDMA);
-            }else if (cellInfo instanceof CellInfoLte) { //4G
+            } else if (cellInfo instanceof CellInfoLte) { //4G
                 CellSignalStrengthLte signalStrengthLte = ((CellInfoLte) cellInfo).getCellSignalStrength();
                 CellIdentityLte identityLte = ((CellInfoLte) cellInfo).getCellIdentity();
                 // Concatenate LTE-specific info
@@ -115,7 +117,7 @@ public class TelephonyData {
                     CellIdentityNr id = (CellIdentityNr) cellInfoNr.getCellIdentity();
                     CellSignalStrengthNr signalStrengthNr = (CellSignalStrengthNr) ((CellInfoNr) cellInfo).getCellSignalStrength();
                     //text += "NR Cell (5G): NCI: " + id.getNci() + ", MCC: " + id.getMccString() + ", MNC: " + id.getMncString() + ", TAC: " + id.getTac() +  ", RSSI:"+ cellInfoNr.getCellSignalStrength().getDbm() + " dBm" +", LEVEL: " + cellInfoNr.getCellSignalStrength().getLevel() + "\n";
-                    CellNR cellNR = new CellNR((int)id.getNci(), id.getMccString(), id.getMncString(), id.getTac(), cellInfoNr.getCellSignalStrength().getDbm(), cellInfoNr.getCellSignalStrength().getLevel());
+                    CellNR cellNR = new CellNR((int) id.getNci(), id.getMccString(), id.getMncString(), id.getTac(), cellInfoNr.getCellSignalStrength().getDbm(), cellInfoNr.getCellSignalStrength().getLevel());
                     cells.add(cellNR);
                 }
             }
@@ -149,7 +151,7 @@ public class TelephonyData {
         return terInfo;
     }
 
-    private String telephonyInfo(){
+    private String telephonyInfo() {
         return "Voice Network Type: " + this.terminalInfo.getVoiceNetworkType() + "\n" +
                 "Data Network Type: " + this.terminalInfo.getDataNetworkType() + "\n" +
                 "Network Operator Name: " + this.telephonyManager.getNetworkOperatorName() + "\n" +
@@ -157,9 +159,9 @@ public class TelephonyData {
                 cellInfo() + "\n";
     }
 
-    private String cellInfo(){
+    private String cellInfo() {
         StringBuilder info = new StringBuilder();
-        for(Cell cell : cells){
+        for (Cell cell : cells) {
             info.append(cell.toString()).append("\n");
         }
         return info.toString();
@@ -196,4 +198,23 @@ public class TelephonyData {
     public void setInfo(String info) {
         this.info = info;
     }
+
+    public int getCelldbm() {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return 0;
+        }
+
+        for (CellInfo cellInfo : this.telephonyManager.getAllCellInfo()) {
+            if (cellInfo.isRegistered()) {
+                CellSignalStrength signalStrength = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    signalStrength = cellInfo.getCellSignalStrength();
+                }
+                assert signalStrength != null;
+                return signalStrength.getDbm();  // dBm values
+            }
+        }
+        return 0;  // default or no signal
+    }
+
 }

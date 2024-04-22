@@ -35,7 +35,7 @@ public class CellGSM extends Cell {
 
     @NonNull
     public String toString(){
-        return "CID: " + CID + "\n" +
+        return "CID: " + CID + "\t" +
                 "LAC: " + LAC + "\n" +
                 super.toString();
     }

@@ -40,7 +40,7 @@ public class CellCDMA extends Cell{
 
     @NonNull
     public String toString() {
-        return "NID: " + NID + "\n" +
+        return "NID: " + NID + "\t" +
                 "System ID: " + SystemID + "\n" +
                 "Base Station ID: " + BaseStationID + "\n" +
                 super.toString();

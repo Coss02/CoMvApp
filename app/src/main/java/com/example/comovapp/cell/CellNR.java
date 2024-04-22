@@ -51,8 +51,8 @@ public class CellNR extends Cell{
 
     @NonNull
     public String toString(){
-        return "NCI: " + NCI + "\n" +
-                "MCC: " + MCC + "\n" +
+        return "NCI: " + NCI + "   " +
+                "MCC: " + MCC + "   " +
                 "MNC: " + MNC + "\n" +
                 "TAC: " + TAC + "\n" +
                 super.toString();

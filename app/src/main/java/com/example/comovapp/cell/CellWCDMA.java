@@ -40,9 +40,9 @@ public class CellWCDMA extends Cell{
 
     @NonNull
     public String toString(){
-        return "CID: " + CID + "\n" +
+        return "CID: " + CID + "   " +
                 "LAC: " + LAC + "\n" +
-                "PSC: " + PSC + "\n" +
+                "PSC: " + PSC + "   " +
                 super.toString();
     }
 }

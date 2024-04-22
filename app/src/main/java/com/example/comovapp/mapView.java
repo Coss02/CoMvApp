@@ -2,6 +2,7 @@ package com.example.comovapp;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.AlertDialog;
@@ -42,6 +43,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.comovapp.databinding.ActivityMapViewBinding;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -49,6 +52,9 @@ import android.graphics.BitmapFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import retrofit2.Call;
@@ -60,8 +66,10 @@ import retrofit2.Response;
 public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private TelephonyManager telephonyManager;
+    private TelephonyData telephonyData;
     private ActivityMapViewBinding binding;
+
+    private static final String filePath = "";
 
 
     @Override
@@ -76,7 +84,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
         // Set up the button click listener to add a marker
         Button button = findViewById(R.id.mapViewInformationButton);
-        this.telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        this.telephonyData = new TelephonyData(this);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,11 +97,54 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             }
         });
     }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+            } else {
+                // Permission denied
+            }
+        }
+    }
+
+    private void checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+    }
 
     public void addCellsToFile() {
-        JSONObject j = new JSONObject();
-        JSONArray cellArray = new JSONArray();
-        // Collection<Cell> cells = MainActivity.showCellInfo(); Hace falta ver cómo leemos las celdas aquí
+        Gson gson = new Gson();
+        JsonObject jsonObject = new JsonObject();
+        int cont = 1;
+        for(Cell cell: telephonyData.getCells()){
+            jsonObject.add("cell" + cont, gson.toJsonTree(cell).getAsJsonObject());
+            cont++;
+        }
+        String jsonString = jsonObject.toString();
+        try {
+            // Comprobar si el fichero existe, si no, crearlo
+            File file = new File(filePath);
+            if (!file.exists()) {
+                if(file.createNewFile()){
+                    Log.d("FileCreated: ","Success");
+                }
+            }
+
+            // Añadir jsonString al final del fichero
+            FileWriter writer = new FileWriter(file, true);
+            writer.append(jsonString);
+            writer.close();
+
+
+        } catch (IOException e) {
+            Log.d("Error",  "Al añadir jsonString al fichero: " + e.getMessage());
+        }
+
 
     }
     private void addMarkerAtCurrentLocation() {
@@ -103,7 +154,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             }
             mMap.setMyLocationEnabled(true);
             LatLng currentLocation = new LatLng(mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude());
-            int signalStrength = getSignalStrength();
+            int signalStrength = telephonyData.getCelldbm();
             mMap.addMarker(new MarkerOptions()
                     .position(currentLocation)
                     .title("You are here")
@@ -114,22 +165,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         }
     }
 
-    private int getSignalStrength() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return 0;
-        }
-        List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
-        for (CellInfo cellInfo : cellInfoList) {
-            if (cellInfo.isRegistered()) {
-                CellSignalStrength signalStrength = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    signalStrength = cellInfo.getCellSignalStrength();
-                }
-                return signalStrength.getDbm();  // dBm values
-            }
-        }
-        return 0;  // default or no signal
-    }
+
     private float getColorForSignalStrength(int signalStrength) {
         if (signalStrength > -75) {
             return BitmapDescriptorFactory.HUE_GREEN;
