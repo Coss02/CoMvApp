@@ -11,13 +11,15 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="144dp"
-        android:layout_marginTop="180dp"
-        android:layout_marginEnd="145dp"
-        android:layout_marginBottom="122dp"
+        android:layout_marginStart="168dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="169dp"
+        android:layout_marginBottom="20dp"
         android:text="¡Benvenuto!"
-        app:layout_constraintBottom_toTopOf="@+id/showMapButt"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@+id/showInformationButt"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.483"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,21 +28,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="136dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="137dp"
-        android:layout_marginBottom="320dp"
+        android:layout_marginBottom="527dp"
         android:onClick="openMapActivity"
         android:text="Mostrar mapa"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/showInformationButt" />
 
     <TextView
         android:id="@+id/showInfoText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="524dp"
+        android:layout_marginTop="244dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,13 +53,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="117dp"
-        android:layout_marginTop="74dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="116dp"
-        android:layout_marginBottom="43dp"
+        android:layout_marginBottom="15dp"
         android:onClick="openInformationActivity"
         android:text="Mostrar información"
         app:layout_constraintBottom_toTopOf="@+id/showMapButt"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 

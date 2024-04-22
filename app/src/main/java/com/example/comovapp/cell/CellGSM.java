@@ -1,5 +1,7 @@
 package com.example.comovapp.cell;
 
+import androidx.annotation.NonNull;
+
 public class CellGSM extends Cell {
     private int CID;
     private int LAC;
@@ -29,5 +31,12 @@ public class CellGSM extends Cell {
 
     public void setLAC(int LAC) {
         this.LAC = LAC;
+    }
+
+    @NonNull
+    public String toString(){
+        return "CID: " + CID + "\n" +
+                "LAC: " + LAC + "\n" +
+                super.toString();
     }
 }

@@ -1,5 +1,7 @@
 package com.example.comovapp.cell;
 
+import androidx.annotation.NonNull;
+
 public class CellCDMA extends Cell{
     private int NID; //Network ID
     private int SystemID; //System ID
@@ -34,5 +36,13 @@ public class CellCDMA extends Cell{
 
     public void setBaseStationID(int baseStationID) {
         BaseStationID = baseStationID;
+    }
+
+    @NonNull
+    public String toString() {
+        return "NID: " + NID + "\n" +
+                "System ID: " + SystemID + "\n" +
+                "Base Station ID: " + BaseStationID + "\n" +
+                super.toString();
     }
 }

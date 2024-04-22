@@ -1,5 +1,7 @@
 package com.example.comovapp.cell;
 
+import androidx.annotation.NonNull;
+
 public class CellWCDMA extends Cell{
     private int CID;
     private int LAC;
@@ -34,5 +36,13 @@ public class CellWCDMA extends Cell{
 
     public void setPSC(int PSC) {
         this.PSC = PSC;
+    }
+
+    @NonNull
+    public String toString(){
+        return "CID: " + CID + "\n" +
+                "LAC: " + LAC + "\n" +
+                "PSC: " + PSC + "\n" +
+                super.toString();
     }
 }

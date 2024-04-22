@@ -1,5 +1,7 @@
 package com.example.comovapp.cell;
 
+import androidx.annotation.NonNull;
+
 public class Cell {
     private int Gen; //Generación (5G,2G,etc)
     private int RSSI; //fuerza de señal recibida
@@ -36,5 +38,10 @@ public class Cell {
 
     public void setLEVEL(int LEVEL) {
         this.LEVEL = LEVEL;
+    }
+
+    @NonNull
+    public String toString(){
+        return "Celda " + Gen + "G\n" + "RSSI: " + RSSI + "\n" + "LEVEL: " + LEVEL + "\n";
     }
 }

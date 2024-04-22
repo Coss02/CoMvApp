@@ -1,5 +1,7 @@
 package com.example.comovapp.cell;
 
+import androidx.annotation.NonNull;
+
 public class CellNR extends Cell{
     private int NCI;
     private String MCC;
@@ -45,5 +47,14 @@ public class CellNR extends Cell{
 
     public void setTAC(int TAC) {
         this.TAC = TAC;
+    }
+
+    @NonNull
+    public String toString(){
+        return "NCI: " + NCI + "\n" +
+                "MCC: " + MCC + "\n" +
+                "MNC: " + MNC + "\n" +
+                "TAC: " + TAC + "\n" +
+                super.toString();
     }
 }

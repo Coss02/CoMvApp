@@ -107,7 +107,9 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             mMap.addMarker(new MarkerOptions()
                     .position(currentLocation)
                     .title("You are here")
+                    .flat(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
+
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
         }
     }
@@ -232,7 +234,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     // Adding the marker with a custom icon on the map
                     // Resize the icon
                     Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);
-                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 150, 150, false); // Adjust width and height as needed
+                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 100, 100, false); // Adjust width and height as needed
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

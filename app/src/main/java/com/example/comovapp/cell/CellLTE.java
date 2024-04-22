@@ -57,4 +57,14 @@ public class CellLTE extends Cell{
     public void setMNC(int MNC) {
         this.MNC = MNC;
     }
+
+    @NonNull
+    public String toString(){
+        return "CI: " + CI + "\n" +
+                "PCI: " + PCI + "\n" +
+                "MCC: " + MCC + "\n" +
+                "MNC: " + MNC + "\n" +
+                "TAC: " + TAC + "\n" +
+                super.toString();
+    }
 }
