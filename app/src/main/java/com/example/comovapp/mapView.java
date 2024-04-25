@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
+import android.os.Environment;
 import android.telephony.CellIdentityCdma;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
@@ -49,6 +50,7 @@ import com.google.gson.JsonObject;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -71,8 +73,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private TelephonyData telephonyData;
     private ActivityMapViewBinding binding;
+    private final int PERMISSION_REQUEST_CODE = 1;
 
-    private static final String filePath = "";
 
 
     @Override
@@ -89,69 +91,67 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         Button button = findViewById(R.id.mapViewInformationButton);
         this.telephonyData = new TelephonyData(this);
 
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Imprimir aquí en fichero información de las celdas en JSON
-                addCellsToFile();
                 addMarkerAtCurrentLocation();
                 fetchCellLocation(); // Fetch API data when activity starts
+                addCellsToFile();
 
             }
         });
     }
 
-    /*
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-            } else {
-                // Permission denied
-            }
-        }
-    }
-
-    private void checkAndRequestPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
-    }
-    */
     public void addCellsToFile() {
+        Log.d("Function Entry", "addCellsToFile entered successfully");
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
-        int cont = 1;
-        for(Cell cell: telephonyData.getCells()){
-            jsonObject.add("cell" + cont, gson.toJsonTree(cell).getAsJsonObject());
-            cont++;
+        int counter = 1;
+
+        // Ensure the external storage is writable
+        if (!isExternalStorageWritable()) {
+            Log.e("Storage Error", "External Storage is not writable");
+            return;
+        }
+
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "comovapp");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                Log.e("File Error", "Failed to create directory");
+                return;
+            }
+        }
+
+        String fileName = "jsonCoMov.json";
+        File file = new File(storageDir, fileName);
+
+        for (Cell cell : telephonyData.getCells()) {
+            jsonObject.add("cell" + counter, gson.toJsonTree(cell).getAsJsonObject());
+            counter++;
         }
         String jsonString = jsonObject.toString();
-        try {
-            // Comprobar si el fichero existe, si no, crearlo
-            File file = new File(filePath);
-            if (!file.exists()) {
-                if(file.createNewFile()){
-                    Log.d("FileCreated: ","Success");
-                }
-            }
 
-            // Añadir jsonString al final del fichero
-            FileWriter writer = new FileWriter(file, true);
+        try {
+            // Use FileWriter to write to the file
+            FileWriter writer = new FileWriter(file, true); // Append mode set to true
             writer.append(jsonString);
             writer.close();
-
-
+            Log.d("File Success", "Data written successfully to file");
         } catch (IOException e) {
-            Log.d("Error",  "Al añadir jsonString al fichero: " + e.getMessage());
+            Log.e("File I/O Error", "Error writing jsonString to file: " + e.getMessage());
         }
-
-
     }
+
+    /**
+     * Checks if external storage is available for read and write
+     */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
     private void addMarkerAtCurrentLocation() {
         if (mMap != null) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -258,6 +258,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                 // Si tenemos permisos
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showPosition();
+                    addCellsToFile();
                 }
                 // Si no los tenemos
                 else {
