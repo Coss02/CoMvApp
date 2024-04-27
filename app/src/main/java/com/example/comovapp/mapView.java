@@ -102,17 +102,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     }
 
     /*
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-            } else {
-                // Permission denied
-            }
-        }
-    }
-
     private void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -264,6 +253,14 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     Log.e("LocationAction", "Se necesitan permisos para poder usar la aplicacion");
                 }
             }
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Log.e("WriteExternalStorage", "Permisos concedidos");
+                } else {
+                    // Permission denied
+                    Log.e("WriteExternalStorage", "Se necesitan permisos para poder usar la aplicacion");
+                }
         }
     }
 
