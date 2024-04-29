@@ -93,7 +93,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
     private void showThresholdDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Set Stage Threshold");
+        builder.setTitle("Seleccione la cantidad de marcadores por etapa:");
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -102,12 +102,14 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                STAGE_THRESHOLD = Integer.parseInt(input.getText().toString());
-                isThresholdSet = true;
-                Toast.makeText(mapView.this, "Threshold set to: " + STAGE_THRESHOLD, Toast.LENGTH_SHORT).show();
+                if(!input.getText().toString().isEmpty()) {
+                    STAGE_THRESHOLD = Integer.parseInt(input.getText().toString());
+                    isThresholdSet = true;
+                    Toast.makeText(mapView.this, "Establecido en: " + STAGE_THRESHOLD, Toast.LENGTH_SHORT).show();
+                }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
