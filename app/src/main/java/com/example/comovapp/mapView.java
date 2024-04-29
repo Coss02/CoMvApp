@@ -198,7 +198,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                if (!Objects.equals(marker.getTitle(), "Cell Position")){
+                Log.e("Control", "He llegado al sitio: el title es: " + marker.getTitle());
+                if (!Objects.equals(marker.getTitle(), "Celda CI:")){
                     // Call function to show dialog
                     marker.setTitle("Información de las celdas");
                     marker.setSnippet(telephonyData.getInfo());
