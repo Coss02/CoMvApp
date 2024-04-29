@@ -56,7 +56,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private ActivityMapViewBinding binding;
     private int buttonPressCount = 0;
     private ArrayList<Cell> stageData = new ArrayList<>(); //Para el fichero sin etapas
-    private ArrayList<Cell> stageMarker = new ArrayList<>(); //Contenido de un marcador
+    //private ArrayList<Cell> stageMarker = new ArrayList<>(); //Contenido de un marcador
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
     private int stageCounter = 1;
@@ -145,16 +145,18 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
         try (FileWriter writer = new FileWriter(file, true)) { // Append mode
             writer.append(jsonObject.toString());
+            writer.close();
             Log.d("File Success", "Data written successfully to file");
         } catch (IOException e) {
             Log.e("File I/O Error", e.getMessage());
         }
-        //stageMarkers.add(stageData);
+        fullStage.add(stageData);
+        stageData.clear(); // Clear the collected data for the next stage
         buttonPressCount++;
         if (buttonPressCount >= STAGE_THRESHOLD) {
             saveStageData();
             buttonPressCount = 0; // Reset the counter
-            stageData.clear(); // Clear the collected data for the next stage
+            fullStage.clear();
         }
     }
 
@@ -170,11 +172,18 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         Gson gson = new Gson();
 
         // Crea un array JSON per le celle di questa tappa.
-        JsonArray jsonArray = new JsonArray();
-        //for (ArrayList<Cell> arrayCells : ) {
+        //JsonArray MarkerArray = new JsonArray();
+        JsonObject markerData = new JsonObject();
         JsonObject allMarkersData = new JsonObject();  // Crea un JsonObject per mantenere i dati di tutti i marker
-
-
+        int markerIndex = 1;
+        int cellIndex = 1;
+        for(ArrayList<Cell> marker: fullStage){
+            for(Cell cell: marker){
+                markerData.add("cell" + cellIndex++, gson.toJsonTree(cell).getAsJsonObject());
+            }
+            allMarkersData.add("marker" + markerIndex++, markerData);
+        }
+        /*
         int markerIndex = 1;
         for (Cell cell : stageData) {
             if (cell != null) {
@@ -186,11 +195,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             //JsonObject markerObject = new JsonObject();
             //markerObject.add("marker" + markerCount, jsonArray);
         //}
-
-
-
-
-
+        */
 
         // Leggi il file esistente e aggiorna il contenuto.
         JsonObject allStagesObject = new JsonObject();
