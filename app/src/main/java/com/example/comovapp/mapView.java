@@ -2,34 +2,15 @@ package com.example.comovapp;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
 import android.os.Environment;
-import android.telephony.CellIdentityCdma;
-import android.telephony.CellIdentityGsm;
-import android.telephony.CellIdentityLte;
-import android.telephony.CellIdentityNr;
-import android.telephony.CellIdentityWcdma;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellInfoLte;
-import android.telephony.CellInfoNr;
-import android.telephony.CellInfoWcdma;
-import android.telephony.CellSignalStrength;
-import android.telephony.CellSignalStrengthCdma;
-import android.telephony.CellSignalStrengthGsm;
-import android.telephony.CellSignalStrengthLte;
-import android.telephony.CellSignalStrengthNr;
-import android.telephony.CellSignalStrengthWcdma;
-import android.telephony.TelephonyManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -46,20 +27,20 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.comovapp.databinding.ActivityMapViewBinding;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -73,76 +54,165 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private TelephonyData telephonyData;
     private ActivityMapViewBinding binding;
-    private final int PERMISSION_REQUEST_CODE = 1;
+    private int buttonPressCount = 0;
+    private ArrayList<Cell> stageData = new ArrayList<>(); //Para el fichero sin etapas
+    private ArrayList<Cell> stageMarker = new ArrayList<>(); //Contenido de un marcador
+    private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
+    private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
+    private int stageCounter = 1;
+    private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
+    private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
 
 
 
-    @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMapViewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Set up the button click listener to add a marker
         Button button = findViewById(R.id.mapViewInformationButton);
         this.telephonyData = new TelephonyData(this);
-
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Imprimir aquí en fichero información de las celdas en JSON
-                addMarkerAtCurrentLocation();
-                fetchCellLocation(); // Fetch API data when activity starts
-                addCellsToFile();
-
+                if (!isThresholdSet) {
+                    showThresholdDialog();
+                } else {
+                    addMarkerAtCurrentLocation();  // Questo aggiungerà anche il marker e incrementerà il markerCount
+                    fetchCellLocation();  // Fetch API data when activity starts
+                    addCellsToFile();
+                }
             }
         });
     }
 
-    public void addCellsToFile() {
-        Log.d("Function Entry", "addCellsToFile entered successfully");
-        Gson gson = new Gson();
-        JsonObject jsonObject = new JsonObject();
-        int counter = 1;
+    private void showThresholdDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set Stage Threshold");
 
-        // Ensure the external storage is writable
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                STAGE_THRESHOLD = Integer.parseInt(input.getText().toString());
+                isThresholdSet = true;
+                Toast.makeText(mapView.this, "Threshold set to: " + STAGE_THRESHOLD, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void addCellsToFile() {
         if (!isExternalStorageWritable()) {
             Log.e("Storage Error", "External Storage is not writable");
             return;
         }
 
         File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "comovapp");
-        if (!storageDir.exists()) {
-            if (!storageDir.mkdirs()) {
-                Log.e("File Error", "Failed to create directory");
-                return;
-            }
+        if (!storageDir.exists() && !storageDir.mkdirs()) {
+            Log.e("File Error", "Failed to create directory");
+            return;
         }
 
         String fileName = "jsonCoMov.json";
         File file = new File(storageDir, fileName);
+        Gson gson = new Gson();
+        JsonObject jsonObject = new JsonObject();
 
+        int counter = 1;
         for (Cell cell : telephonyData.getCells()) {
             jsonObject.add("cell" + counter, gson.toJsonTree(cell).getAsJsonObject());
             counter++;
+            stageData.add(cell);
         }
-        String jsonString = jsonObject.toString();
 
-        try {
-            // Use FileWriter to write to the file
-            FileWriter writer = new FileWriter(file, true); // Append mode set to true
-            writer.append(jsonString);
-            writer.close();
+        try (FileWriter writer = new FileWriter(file, true)) { // Append mode
+            writer.append(jsonObject.toString());
             Log.d("File Success", "Data written successfully to file");
         } catch (IOException e) {
-            Log.e("File I/O Error", "Error writing jsonString to file: " + e.getMessage());
+            Log.e("File I/O Error", e.getMessage());
+        }
+        //stageMarkers.add(stageData);
+        buttonPressCount++;
+        if (buttonPressCount >= STAGE_THRESHOLD) {
+            saveStageData();
+            buttonPressCount = 0; // Reset the counter
+            stageData.clear(); // Clear the collected data for the next stage
         }
     }
+
+    private void saveStageData() {
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "comovapp");
+        if (!storageDir.exists() && !storageDir.mkdirs()) {
+            Log.e("File Error", "Failed to create directory");
+            return; // Non procedere ulteriormente se la directory non può essere creata.
+        }
+
+        String stageFileName = "stagesData.json";
+        File stageFile = new File(storageDir, stageFileName);
+        Gson gson = new Gson();
+
+        // Crea un array JSON per le celle di questa tappa.
+        JsonArray jsonArray = new JsonArray();
+        //for (ArrayList<Cell> arrayCells : ) {
+        JsonObject allMarkersData = new JsonObject();  // Crea un JsonObject per mantenere i dati di tutti i marker
+
+
+        int markerIndex = 1;
+        for (Cell cell : stageData) {
+            if (cell != null) {
+                JsonObject cellData = gson.toJsonTree(cell).getAsJsonObject();
+                allMarkersData.add("marker" + markerIndex++, cellData);
+            }
+        }
+            // Crea un oggetto che contenga l'array delle celle sotto un nome specifico del marker.
+            //JsonObject markerObject = new JsonObject();
+            //markerObject.add("marker" + markerCount, jsonArray);
+        //}
+
+
+
+
+
+
+        // Leggi il file esistente e aggiorna il contenuto.
+        JsonObject allStagesObject = new JsonObject();
+        if (stageFile.exists()) {
+            try (FileReader reader = new FileReader(stageFile)) {
+                allStagesObject = gson.fromJson(reader, JsonObject.class);
+            } catch (IOException e) {
+                Log.e("File I/O Error", "Error reading from file: " + e.getMessage());
+                return;
+            }
+        }
+
+        // Aggiungi il nuovo oggetto marker al documento JSON principale.
+        allStagesObject.add("stage" + stageCounter++, allMarkersData);
+
+        try (FileWriter writer = new FileWriter(stageFile)) {
+            writer.write(gson.toJson(allStagesObject));
+            Log.d("Stage File Success", "Stage data written successfully to " + stageFileName);
+        } catch (IOException e) {
+            Log.e("Stage File Error", "Error writing to file: " + e.getMessage());
+        }
+    }
+
+
 
     /**
      * Checks if external storage is available for read and write
@@ -164,8 +234,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     .position(currentLocation)
                     .flat(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
-
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+            markerCount++;  // Incrementa il contatore dei marker ogni volta che un marker viene aggiunto
         }
     }
 

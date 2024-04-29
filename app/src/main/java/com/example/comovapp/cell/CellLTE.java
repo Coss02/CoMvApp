@@ -11,16 +11,16 @@ public class CellLTE extends Cell{
     private int TAC;
     private int PCI;
 
-    private boolean isRegistered;
+    private static boolean isRegistered;
 
-    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, boolean isRegistered, int RSSI, int LEVEL) {
+    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, boolean Registered, int RSSI, int LEVEL) {
         super(4, RSSI, LEVEL);
         this.CI = CI;
         this.MCC = MCC;
         this.MNC = MNC;
         this.TAC = TAC;
         this.PCI = PCI;
-        this.isRegistered = isRegistered;
+        isRegistered = Registered;
     }
 
     public int getCI() {
