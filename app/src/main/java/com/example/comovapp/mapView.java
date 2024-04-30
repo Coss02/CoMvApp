@@ -55,13 +55,13 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private TelephonyData telephonyData;
     private ActivityMapViewBinding binding;
     private int buttonPressCount = 0;
-    private ArrayList<Cell> stageData = new ArrayList<>(); //Para el fichero sin etapas
-    //private ArrayList<Cell> stageMarker = new ArrayList<>(); //Contenido de un marcador
+    //private ArrayList<Cell> stageData = new ArrayList<>(); //Contenido de un marcador
+    //private ArrayList<Cell> stageMarker = new ArrayList<>(); //
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
-    private int stageCounter = 1;
+    //private int stageCounter = 1;
     private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
-    private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
+    //private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
 
 
 
@@ -120,6 +120,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     }
 
     public void addCellsToFile() {
+
         if (!isExternalStorageWritable()) {
             Log.e("Storage Error", "External Storage is not writable");
             return;
@@ -135,7 +136,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         File file = new File(storageDir, fileName);
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
-
+        ArrayList<Cell> stageData = new ArrayList<>();
         int counter = 1;
         for (Cell cell : telephonyData.getCells()) {
             jsonObject.add("cell" + counter, gson.toJsonTree(cell).getAsJsonObject());
@@ -151,7 +152,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             Log.e("File I/O Error", e.getMessage());
         }
         fullStage.add(stageData);
-        stageData.clear(); // Clear the collected data for the next stage
         buttonPressCount++;
         if (buttonPressCount >= STAGE_THRESHOLD) {
             saveStageData();
@@ -197,6 +197,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         //}
         */
 
+        /*
         // Leggi il file esistente e aggiorna il contenuto.
         JsonObject allStagesObject = new JsonObject();
         if (stageFile.exists()) {
@@ -207,12 +208,14 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                 return;
             }
         }
-
+        */
         // Aggiungi il nuovo oggetto marker al documento JSON principale.
-        allStagesObject.add("stage" + stageCounter++, allMarkersData);
+        //allStagesObject.add("stage" + stageCounter++, allMarkersData);
 
         try (FileWriter writer = new FileWriter(stageFile)) {
-            writer.write(gson.toJson(allStagesObject));
+            writer.append(gson.toJson(allMarkersData));
+            writer.close();
+            //writer.write(gson.toJson(allStagesObject));
             Log.d("Stage File Success", "Stage data written successfully to " + stageFileName);
         } catch (IOException e) {
             Log.e("Stage File Error", "Error writing to file: " + e.getMessage());
@@ -242,7 +245,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     .flat(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-            markerCount++;  // Incrementa il contatore dei marker ogni volta che un marker viene aggiunto
+            //markerCount++;  // Incrementa il contatore dei marker ogni volta che un marker viene aggiunto
         }
     }
 
