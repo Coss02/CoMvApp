@@ -74,7 +74,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        resetFiles(); // Reset files on app launch
         Button button = findViewById(R.id.mapViewInformationButton);
         this.telephonyData = new TelephonyData(this);
 
@@ -162,15 +162,18 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private void saveStageData() {
+        // Ensures directory exists and is ready for file operations
         File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "comovapp");
         if (!storageDir.exists() && !storageDir.mkdirs()) {
             Log.e("File Error", "Failed to create directory");
-            return; // Non procedere ulteriormente se la directory non può essere creata.
+            return;
         }
 
+        // Define the file for stage data
         String stageFileName = "stagesData.json";
-        File stageFile = new File(storageDir, stageFileName);
+        File stageFile = new File(storageDir, "stagesData.json");
         Gson gson = new Gson();
+
 
         // Crea un array JSON per le celle di questa tappa.
         //JsonArray MarkerArray = new JsonArray();
@@ -188,6 +191,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             cellIndex = 1;
         }
         stage.add("stage" + stageCounter++, allMarkersData);
+        Log.e("All markers data", stage.toString());
         /*
         int markerIndex = 1;
         for (Cell cell : stageData) {
@@ -217,13 +221,49 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         // Aggiungi il nuovo oggetto marker al documento JSON principale.
         //allStagesObject.add("stage" + stageCounter++, allMarkersData);
 
-        try (FileWriter writer = new FileWriter(stageFile)) {
+        try (FileWriter writer = new FileWriter(stageFile, true)) {
             writer.append(gson.toJson(stage));
             writer.close();
             //writer.write(gson.toJson(allStagesObject));
             Log.d("Stage File Success", "Stage data written successfully to " + stageFileName);
         } catch (IOException e) {
             Log.e("Stage File Error", "Error writing to file: " + e.getMessage());
+        }
+    }
+    private void resetFiles() {
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "comovapp");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                Log.e("File Error", "Failed to create directory");
+                return;
+            }
+        }
+
+        File jsonFile = new File(storageDir, "jsonCoMov.json");
+        File stageFile = new File(storageDir, "stagesData.json");
+
+        // Delete jsonCoMov.json if it exists
+        if (jsonFile.exists()) {
+            if (!jsonFile.delete()) {
+                Log.e("File Error", "Failed to delete jsonCoMov.json");
+                return;
+            }
+        }
+
+        // Delete stagesData.json if it exists
+        if (stageFile.exists()) {
+            if (!stageFile.delete()) {
+                Log.e("File Error", "Failed to delete stagesData.json");
+                return;
+            }
+        }
+
+        try {
+            // Recreate the files
+            jsonFile.createNewFile();
+            stageFile.createNewFile();
+        } catch (IOException e) {
+            Log.e("File Error", "Error while creating files", e);
         }
     }
 
