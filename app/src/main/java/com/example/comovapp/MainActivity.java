@@ -24,6 +24,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.Manifest;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -65,9 +66,11 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        //Iniciamos TelephonyData
         this.telephonyData = new TelephonyData(this);
+        ImageButton it = findViewById(R.id.italianButton);
+        ImageButton es = findViewById(R.id.spanishButton);
     }
+
 
 
     public void openMapActivity(View v)
