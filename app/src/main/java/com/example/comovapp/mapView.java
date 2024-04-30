@@ -59,9 +59,10 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     //private ArrayList<Cell> stageMarker = new ArrayList<>(); //
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
-    //private int stageCounter = 1;
+    private int stageCounter = 1;
     private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
     //private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
+
 
 
 
@@ -175,6 +176,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         //JsonArray MarkerArray = new JsonArray();
         JsonObject markerData = new JsonObject();
         JsonObject allMarkersData = new JsonObject();  // Crea un JsonObject per mantenere i dati di tutti i marker
+        JsonObject stage = new JsonObject();
         int markerIndex = 1;
         int cellIndex = 1;
         for(ArrayList<Cell> marker: fullStage){
@@ -182,7 +184,10 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                 markerData.add("cell" + cellIndex++, gson.toJsonTree(cell).getAsJsonObject());
             }
             allMarkersData.add("marker" + markerIndex++, markerData);
+            markerData = new JsonObject();
+            cellIndex = 1;
         }
+        stage.add("stage" + stageCounter++, allMarkersData);
         /*
         int markerIndex = 1;
         for (Cell cell : stageData) {
@@ -213,7 +218,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         //allStagesObject.add("stage" + stageCounter++, allMarkersData);
 
         try (FileWriter writer = new FileWriter(stageFile)) {
-            writer.append(gson.toJson(allMarkersData));
+            writer.append(gson.toJson(stage));
             writer.close();
             //writer.write(gson.toJson(allStagesObject));
             Log.d("Stage File Success", "Stage data written successfully to " + stageFileName);
