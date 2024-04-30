@@ -27,7 +27,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.comovapp.databinding.ActivityMapViewBinding;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import android.graphics.Bitmap;
@@ -36,10 +35,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -59,6 +58,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     //private ArrayList<Cell> stageMarker = new ArrayList<>(); //
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
+    private ArrayList<JsonObject> fullStagesDocument = new ArrayList<>(); //Contenido completo del documento con etapas
+    private JsonObject fullNoStagesDocument = new JsonObject(); //Contenido completo del documento sin etapas
     private int stageCounter = 1;
     private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
     //private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
@@ -136,21 +137,18 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         String fileName = "jsonCoMov.json";
         File file = new File(storageDir, fileName);
         Gson gson = new Gson();
-        JsonObject jsonObject = new JsonObject();
         ArrayList<Cell> stageData = new ArrayList<>();
-        int counter = 1;
+
         for (Cell cell : telephonyData.getCells()) {
-            jsonObject.add("cell" + counter, gson.toJsonTree(cell).getAsJsonObject());
-            counter++;
+            fullNoStagesDocument.add("cell " + Calendar.getInstance().getTime().toString(), gson.toJsonTree(cell).getAsJsonObject());
             stageData.add(cell);
         }
-
-        try (FileWriter writer = new FileWriter(file, true)) { // Append mode
-            writer.append(jsonObject.toString());
+        try (FileWriter writer = new FileWriter(file)) { // Append mode
+            writer.write(gson.toJson(fullNoStagesDocument));
             writer.close();
             Log.d("File Success", "Data written successfully to file");
         } catch (IOException e) {
-            Log.e("File I/O Error", e.getMessage());
+            Log.e("File I/O Error", Objects.requireNonNull(e.getMessage()));
         }
         fullStage.add(stageData);
         buttonPressCount++;
@@ -176,7 +174,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
 
         // Crea un array JSON per le celle di questa tappa.
-        //JsonArray MarkerArray = new JsonArray();
         JsonObject markerData = new JsonObject();
         JsonObject allMarkersData = new JsonObject();  // Crea un JsonObject per mantenere i dati di tutti i marker
         JsonObject stage = new JsonObject();
@@ -191,40 +188,11 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             cellIndex = 1;
         }
         stage.add("stage" + stageCounter++, allMarkersData);
+        fullStagesDocument.add(stage);
         Log.e("All markers data", stage.toString());
-        /*
-        int markerIndex = 1;
-        for (Cell cell : stageData) {
-            if (cell != null) {
-                JsonObject cellData = gson.toJsonTree(cell).getAsJsonObject();
-                allMarkersData.add("marker" + markerIndex++, cellData);
-            }
-        }
-            // Crea un oggetto che contenga l'array delle celle sotto un nome specifico del marker.
-            //JsonObject markerObject = new JsonObject();
-            //markerObject.add("marker" + markerCount, jsonArray);
-        //}
-        */
-
-        /*
-        // Leggi il file esistente e aggiorna il contenuto.
-        JsonObject allStagesObject = new JsonObject();
-        if (stageFile.exists()) {
-            try (FileReader reader = new FileReader(stageFile)) {
-                allStagesObject = gson.fromJson(reader, JsonObject.class);
-            } catch (IOException e) {
-                Log.e("File I/O Error", "Error reading from file: " + e.getMessage());
-                return;
-            }
-        }
-        */
-        // Aggiungi il nuovo oggetto marker al documento JSON principale.
-        //allStagesObject.add("stage" + stageCounter++, allMarkersData);
-
-        try (FileWriter writer = new FileWriter(stageFile, true)) {
-            writer.append(gson.toJson(stage));
+        try (FileWriter writer = new FileWriter(stageFile)) {
+            writer.write(gson.toJson(fullStagesDocument));
             writer.close();
-            //writer.write(gson.toJson(allStagesObject));
             Log.d("Stage File Success", "Stage data written successfully to " + stageFileName);
         } catch (IOException e) {
             Log.e("Stage File Error", "Error writing to file: " + e.getMessage());
@@ -302,13 +270,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             return BitmapDescriptorFactory.HUE_YELLOW;
         } else {
             return BitmapDescriptorFactory.HUE_RED;
-        }
-    }
-
-    private void checkPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
     }
 
