@@ -59,7 +59,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
     private ArrayList<JsonObject> fullStagesDocument = new ArrayList<>(); //Contenido completo del documento con etapas
-    private JsonObject fullNoStagesDocument = new JsonObject(); //Contenido completo del documento sin etapas
+    private ArrayList<Cell> fullNoStagesDocument = new ArrayList<>(); //Contenido completo del documento sin etapas
     private int stageCounter = 1;
     private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
     //private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
@@ -137,14 +137,15 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         String fileName = "jsonCoMov.json";
         File file = new File(storageDir, fileName);
         Gson gson = new Gson();
+        JsonObject jsonObject = new JsonObject();
         ArrayList<Cell> stageData = new ArrayList<>();
-
+        int counter = 0;
         for (Cell cell : telephonyData.getCells()) {
-            fullNoStagesDocument.add("cell " + Calendar.getInstance().getTime().toString(), gson.toJsonTree(cell).getAsJsonObject());
+            jsonObject.add("cell " + counter++, gson.toJsonTree(cell).getAsJsonObject());
             stageData.add(cell);
         }
-        try (FileWriter writer = new FileWriter(file)) { // Append mode
-            writer.write(gson.toJson(fullNoStagesDocument));
+        try (FileWriter writer = new FileWriter(file, true)) {
+            writer.append(gson.toJson(jsonObject));
             writer.close();
             Log.d("File Success", "Data written successfully to file");
         } catch (IOException e) {
