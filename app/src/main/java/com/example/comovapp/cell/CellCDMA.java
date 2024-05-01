@@ -7,8 +7,8 @@ public class CellCDMA extends Cell{
     private int SystemID; //System ID
     private int BaseStationID; //Base station ID
 
-    public CellCDMA(int NID, int SystemID, int BaseStationID, int RSSI, int LEVEL) {
-        super(2, RSSI, LEVEL);
+    public CellCDMA(int NID, int SystemID, int BaseStationID, int RSSI, int LEVEL, boolean isRegistered) {
+        super(2, RSSI, LEVEL, isRegistered);
         this.NID = NID;
         this.SystemID = SystemID;
         this.BaseStationID = BaseStationID;

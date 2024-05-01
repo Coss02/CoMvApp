@@ -9,8 +9,8 @@ public class CellNR extends Cell{
     private int TAC;
 
 
-    public CellNR( int NCI, String MCC, String MNC, int TAC, int RSSI, int LEVEL) {
-        super(5, RSSI, LEVEL);
+    public CellNR( int NCI, String MCC, String MNC, int TAC, int RSSI, int LEVEL, boolean isRegistered) {
+        super(5, RSSI, LEVEL, isRegistered);
         this.NCI = NCI;
         this.MCC = MCC;
         this.MNC = MNC;

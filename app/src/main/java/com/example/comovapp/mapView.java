@@ -63,7 +63,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private JsonArray fullNoStagesDocument = new JsonArray(); //Contenido completo del documento sin etapas
     private int stageCounter = 1;
     private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
-    //private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
+    private int cellCount = 0;  // Contador con el número de celdas del documento
 
 
 
@@ -145,10 +145,11 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         ArrayList<Cell> stageData = new ArrayList<>();
-        int counter = 0;
+        //int counter = 0;
         for (Cell cell : telephonyData.getCells()) {
-            jsonObject.add("cell " + counter++, gson.toJsonTree(cell).getAsJsonObject());
+            jsonObject.add("cell " + cellCount++, gson.toJsonTree(cell).getAsJsonObject());
             fullNoStagesDocument.add(jsonObject);
+            jsonObject = new JsonObject();
             stageData.add(cell);
         }
         try (FileWriter writer = new FileWriter(file)) {

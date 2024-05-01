@@ -11,16 +11,14 @@ public class CellLTE extends Cell{
     private int TAC;
     private int PCI;
 
-    private static boolean isRegistered;
 
-    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, boolean Registered, int RSSI, int LEVEL) {
-        super(4, RSSI, LEVEL);
+    public CellLTE( int CI, int MCC, int MNC, int TAC, int PCI, int RSSI, int LEVEL, boolean isRegistered) {
+        super(4, RSSI, LEVEL, isRegistered);
         this.CI = CI;
         this.MCC = MCC;
         this.MNC = MNC;
         this.TAC = TAC;
         this.PCI = PCI;
-        isRegistered = Registered;
     }
 
     public int getCI() {
@@ -61,14 +59,6 @@ public class CellLTE extends Cell{
 
     public void setMNC(int MNC) {
         this.MNC = MNC;
-    }
-
-    public boolean isRegistered() {
-        return isRegistered;
-    }
-
-    public void setRegistered(boolean registered) {
-        isRegistered = registered;
     }
 
     @NonNull
