@@ -71,7 +71,9 @@ public class MainActivity extends AppCompatActivity {
         ImageButton es = findViewById(R.id.spanishButton);
     }
 
-
+    private void resetTelephonyData(){
+        this.telephonyData = new TelephonyData(this);
+    }
 
     public void openMapActivity(View v)
     {
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openInformationActivity(View v){
+        resetTelephonyData();
         TextView textView = findViewById(R.id.showInfoText);
         textView.setText(String.format(telephonyData.getInfo()));
     }

@@ -6,11 +6,13 @@ public class Cell {
     private int Gen; //Generación (5G,2G,etc)
     private int RSSI; //fuerza de señal recibida
     private int LEVEL;
+    private boolean isRegistered;
 
-    public Cell(int Gen, int RSSI, int LEVEL) {
+    public Cell(int Gen, int RSSI, int LEVEL, boolean isRegistered) {
         this.Gen = Gen;
         this.RSSI = RSSI;
         this.LEVEL = LEVEL;
+        this.isRegistered = isRegistered;
     }
     public Cell(){
 
@@ -40,8 +42,16 @@ public class Cell {
         this.LEVEL = LEVEL;
     }
 
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public void setRegistered(boolean registered) {
+        isRegistered = registered;
+    }
+
     @NonNull
     public String toString(){
-        return "Celda " + Gen + "G   " + "RSSI: " + RSSI + "   " + "LEVEL: " + LEVEL + "\n";
+        return "Celda " + Gen + "G   " + "RSSI: " + RSSI + "   " + "LEVEL: " + LEVEL +  "\n" + "Registered Cell: " + isRegistered + "\n";
     }
 }

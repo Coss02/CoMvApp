@@ -73,41 +73,36 @@ public class TelephonyData {
             }
             return cells;
         }
-        //String text = "";
         List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
         for (CellInfo cellInfo : cellInfoList) {
             if (cellInfo instanceof CellInfoGsm) { //2G
                 CellSignalStrengthGsm signalStrengthGsm = ((CellInfoGsm) cellInfo).getCellSignalStrength();
                 CellIdentityGsm identityGsm = ((CellInfoGsm) cellInfo).getCellIdentity();
                 // Concatenate GSM-specific info
-                //text += "GSM Cell (2G): " + "CID: " + identityGsm.getCid() + ", LAC: " + identityGsm.getLac() + ", RSSI: " + signalStrengthGsm.getDbm() + " dBm\n";
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getRssi(), signalStrengthGsm.getLevel());
+                    CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getRssi(), signalStrengthGsm.getLevel(), cellInfo.isRegistered());
                     cells.add(cellGSM);
                 } else {
-                    CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getLevel());
+                    CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getLevel(), cellInfo.isRegistered());
                     cells.add(cellGSM);
                 }
             } else if (cellInfo instanceof CellInfoCdma) { //2G
                 CellSignalStrengthCdma signalStrengthCdma = ((CellInfoCdma) cellInfo).getCellSignalStrength();
                 CellIdentityCdma identityCdma = ((CellInfoCdma) cellInfo).getCellIdentity();
                 // Concatenate CDMA-specific info
-                //text += "CDMA Cell (2G): " + "Network ID: " + identityCdma.getNetworkId() + ", System ID: " + identityCdma.getSystemId() + ", Base Station ID: " + identityCdma.getBasestationId() + ", RSSI: " + signalStrengthCdma.getDbm() + " dBm\n";
-                CellCDMA cellCDMA = new CellCDMA(identityCdma.getNetworkId(), identityCdma.getSystemId(), identityCdma.getBasestationId(), signalStrengthCdma.getDbm(), signalStrengthCdma.getLevel());
+                CellCDMA cellCDMA = new CellCDMA(identityCdma.getNetworkId(), identityCdma.getSystemId(), identityCdma.getBasestationId(), signalStrengthCdma.getDbm(), signalStrengthCdma.getLevel(), cellInfo.isRegistered());
                 cells.add(cellCDMA);
             } else if (cellInfo instanceof CellInfoWcdma) { //3G
                 CellSignalStrengthWcdma signalStrengthWcdma = ((CellInfoWcdma) cellInfo).getCellSignalStrength();
                 CellIdentityWcdma identityWcdma = ((CellInfoWcdma) cellInfo).getCellIdentity();
                 // Concatenate WCDMA-specific info
-                //text += "WCDMA Cell (3G): " + "LAC: " + identityWcdma.getLac() + ", CID: " + identityWcdma.getCid() + ", PSC: " + identityWcdma.getPsc() + ", RSSI: " + signalStrengthWcdma.getDbm() + " dBm\n";
-                CellWCDMA cellWCDMA = new CellWCDMA(identityWcdma.getCid(), identityWcdma.getLac(), identityWcdma.getPsc(), signalStrengthWcdma.getDbm(), signalStrengthWcdma.getLevel());
+                CellWCDMA cellWCDMA = new CellWCDMA(identityWcdma.getCid(), identityWcdma.getLac(), identityWcdma.getPsc(), signalStrengthWcdma.getDbm(), signalStrengthWcdma.getLevel(), cellInfo.isRegistered());
                 cells.add(cellWCDMA);
             } else if (cellInfo instanceof CellInfoLte) { //4G
                 CellSignalStrengthLte signalStrengthLte = ((CellInfoLte) cellInfo).getCellSignalStrength();
                 CellIdentityLte identityLte = ((CellInfoLte) cellInfo).getCellIdentity();
                 // Concatenate LTE-specific info
-                //text += "LTE Cell (4G): " + "CI: " + identityLte.getCi() + ", TAC: " + identityLte.getTac() + ", PCI: " + identityLte.getPci() + ", RSSI: " + signalStrengthLte.getDbm() + " dBm" + ", LEVEL: " + signalStrengthLte.getLevel() + "\n";
-                CellLTE cellLTE = new CellLTE(identityLte.getCi(), identityLte.getMcc(), identityLte.getMnc(), identityLte.getTac(), identityLte.getPci(), cellInfo.isRegistered(), signalStrengthLte.getDbm(), signalStrengthLte.getLevel());
+                CellLTE cellLTE = new CellLTE(identityLte.getCi(), identityLte.getMcc(), identityLte.getMnc(), identityLte.getTac(), identityLte.getPci(), signalStrengthLte.getDbm(), signalStrengthLte.getLevel(), cellInfo.isRegistered());
                 cells.add(cellLTE);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { //5G
                 if (cellInfo instanceof CellInfoNr) {
@@ -115,9 +110,7 @@ public class TelephonyData {
                     // Since 5G specifics are more complex and API dependent, we'll keep this generic
                     CellInfoNr cellInfoNr = (CellInfoNr) cellInfo;
                     CellIdentityNr id = (CellIdentityNr) cellInfoNr.getCellIdentity();
-                    CellSignalStrengthNr signalStrengthNr = (CellSignalStrengthNr) ((CellInfoNr) cellInfo).getCellSignalStrength();
-                    //text += "NR Cell (5G): NCI: " + id.getNci() + ", MCC: " + id.getMccString() + ", MNC: " + id.getMncString() + ", TAC: " + id.getTac() +  ", RSSI:"+ cellInfoNr.getCellSignalStrength().getDbm() + " dBm" +", LEVEL: " + cellInfoNr.getCellSignalStrength().getLevel() + "\n";
-                    CellNR cellNR = new CellNR((int) id.getNci(), id.getMccString(), id.getMncString(), id.getTac(), cellInfoNr.getCellSignalStrength().getDbm(), cellInfoNr.getCellSignalStrength().getLevel());
+                    CellNR cellNR = new CellNR((int) id.getNci(), id.getMccString(), id.getMncString(), id.getTac(), cellInfoNr.getCellSignalStrength().getDbm(), cellInfoNr.getCellSignalStrength().getLevel(), cellInfo.isRegistered());
                     cells.add(cellNR);
                 }
             }
@@ -223,11 +216,9 @@ public class TelephonyData {
             return collection;
         }
         for(Cell cell : cells){
-            if(cell instanceof CellLTE){
-                CellLTE cellLTE = (CellLTE) cell;
-                if(cellLTE.isRegistered()){
+            if(cell instanceof CellLTE && cell.isRegistered()){
+                    CellLTE cellLTE = (CellLTE) cell;
                     collection.add(cellLTE);
-                }
             }
         }
         return collection;
