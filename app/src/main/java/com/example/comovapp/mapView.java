@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.comovapp.databinding.ActivityMapViewBinding;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import android.graphics.Bitmap;
@@ -59,7 +60,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
     private ArrayList<JsonObject> fullStagesDocument = new ArrayList<>(); //Contenido completo del documento con etapas
-    private ArrayList<Cell> fullNoStagesDocument = new ArrayList<>(); //Contenido completo del documento sin etapas
+    private JsonArray fullNoStagesDocument = new JsonArray(); //Contenido completo del documento sin etapas
     private int stageCounter = 1;
     private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
     //private int markerCount = 0;  // Contatore per tenere traccia del numero di marker
@@ -85,12 +86,17 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                 if (!isThresholdSet) {
                     showThresholdDialog();
                 } else {
+                    resetTelephonyData();
                     addMarkerAtCurrentLocation();  // Questo aggiungerà anche il marker e incrementerà il markerCount
                     fetchCellLocation();  // Fetch API data when activity starts
                     addCellsToFile();
                 }
             }
         });
+    }
+
+    private void resetTelephonyData(){
+        this.telephonyData = new TelephonyData(this);
     }
 
     private void showThresholdDialog() {
@@ -142,10 +148,12 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         int counter = 0;
         for (Cell cell : telephonyData.getCells()) {
             jsonObject.add("cell " + counter++, gson.toJsonTree(cell).getAsJsonObject());
+            fullNoStagesDocument.add(jsonObject);
             stageData.add(cell);
         }
-        try (FileWriter writer = new FileWriter(file, true)) {
-            writer.append(gson.toJson(jsonObject));
+        try (FileWriter writer = new FileWriter(file)) {
+            //writer.append(gson.toJson(jsonObject));
+            writer.write(gson.toJson(fullNoStagesDocument));
             writer.close();
             Log.d("File Success", "Data written successfully to file");
         } catch (IOException e) {
