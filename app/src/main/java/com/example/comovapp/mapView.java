@@ -141,7 +141,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
         for (Cell cell : telephonyData.getCells()) {
             Log.e("Cells data", fullNoStagesDocument.toString());
-            fullNoStagesDocument.add("cell " + Calendar.getInstance().getTime().toString(), gson.toJsonTree(cell).getAsJsonObject());
+            fullNoStagesDocument.add("cell ", gson.toJsonTree(cell).getAsJsonObject());
             stageData.add(cell);
             Log.e("Cells data", fullNoStagesDocument.toString());
         }
