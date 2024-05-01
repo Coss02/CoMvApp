@@ -55,8 +55,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private TelephonyData telephonyData;
     private ActivityMapViewBinding binding;
     private int buttonPressCount = 0;
-    //private ArrayList<Cell> stageData = new ArrayList<>(); //Contenido de un marcador
-    //private ArrayList<Cell> stageMarker = new ArrayList<>(); //
     private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
     private ArrayList<JsonObject> fullStagesDocument = new ArrayList<>(); //Contenido completo del documento con etapas
@@ -107,7 +105,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         builder.setView(input);
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(!input.getText().toString().isEmpty()) {
@@ -268,7 +266,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     .flat(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-            //markerCount++;  // Incrementa il contatore dei marker ogni volta che un marker viene aggiunto
         }
     }
 
@@ -389,7 +386,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                                             .title("Celda CI:" + fourGcell.getCI())
                                             .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
                                             .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-                                    // Ensure you have ic_cell_tower.png in your drawable folder
                                 }
                             }
                         });
