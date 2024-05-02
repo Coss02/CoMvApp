@@ -262,6 +262,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             LatLng currentLocation = new LatLng(mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude());
             int signalStrength = telephonyData.getCelldbm();
             mMap.addMarker(new MarkerOptions()
+                    .title("Información de las celdas")
+                    .snippet(telephonyData.getInfo())
                     .position(currentLocation)
                     .flat(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(getColorForSignalStrength(signalStrength))));
@@ -292,15 +294,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
                 Log.e("Control", "He llegado al sitio: el title es: " + marker.getTitle());
-                if (!Objects.equals(marker.getTitle(), "Celda CI:")){
-                    // Call function to show dialog
-                    marker.setTitle("Información de las celdas");
-                    marker.setSnippet(telephonyData.getInfo());
-                    showDialog(marker.getTitle(), marker.getSnippet());
-                }else{
-                    showDialog(marker.getTitle(), marker.getSnippet());
-                }
-
+                showDialog(marker.getTitle(), marker.getSnippet());
                 return true;
             }
         });
@@ -363,9 +357,10 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     }
 
     public void fetchCellLocation() {
-        Collection<CellLTE> fourGcells = telephonyData.getRegistered4GCells();
+        Collection<CellLTE> fourGcells = telephonyData.get4GCells();
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
         for(CellLTE fourGcell : fourGcells) {
+            Log.e("CELDA IDENTIDAD BUCLE", fourGcell.getCI() + " ");
             Call<ApiResponse> call = apiService.getCellLocation("1.1", "open", fourGcell.getMCC(), fourGcell.getMNC(), fourGcell.getTAC(), fourGcell.getCI());
             call.enqueue(new Callback<ApiResponse>() {
                 @Override
@@ -373,19 +368,31 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     if (response.isSuccessful() && response.body() != null) {
                         ApiResponse apiResponse = response.body();
                         LatLng cellLocation = new LatLng(apiResponse.data.lat, apiResponse.data.lon);
+                        Log.e("COORDENADAS", apiResponse.data.lat + " " + apiResponse.data.lon);
                         // Adding the marker with a custom icon on the map
                         // Resize the icon
                         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);
                         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 100, 100, false); // Adjust width and height as needed
+                        Bitmap imageBitmapRegistered = BitmapFactory.decodeResource(getResources(), R.drawable.antena_registrada);
+                        Bitmap resizedBitmapRegistered = Bitmap.createScaledBitmap(imageBitmapRegistered, 100, 100, false); // Adjust width and height as needed
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (mMap != null) {
-                                    mMap.addMarker(new MarkerOptions()
-                                            .position(cellLocation)
-                                            .title("Celda CI:" + fourGcell.getCI())
-                                            .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
-                                            .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
+                                if (mMap != null || (apiResponse.data.lat == 0.0 && apiResponse.data.lon == 0.0)) {
+                                    if(fourGcell.isRegistered()) {
+                                        mMap.addMarker(new MarkerOptions()
+                                                .position(cellLocation)
+                                                .title("Celda CI:" + fourGcell.getCI())
+                                                .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
+                                                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmapRegistered)));
+                                    }else {
+                                        mMap.addMarker(new MarkerOptions()
+                                                .position(cellLocation)
+                                                .title("Celda CI:" + fourGcell.getCI())
+                                                .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
+                                                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
+                                    }
+
                                 }
                             }
                         });

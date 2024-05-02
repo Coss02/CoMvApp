@@ -210,13 +210,13 @@ public class TelephonyData {
         return 0;  // default or no signal
     }
 
-    public Collection<CellLTE> getRegistered4GCells(){
+    public Collection<CellLTE> get4GCells(){
         Collection<CellLTE> collection = new ArrayList<>();
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return collection;
         }
         for(Cell cell : cells){
-            if(cell instanceof CellLTE && cell.isRegistered()){
+            if(cell instanceof CellLTE){
                     CellLTE cellLTE = (CellLTE) cell;
                     collection.add(cellLTE);
             }
