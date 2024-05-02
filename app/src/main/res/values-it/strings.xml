@@ -5,4 +5,10 @@
     <string name="mostrar_informacion2">Mostrare Informazioni</string>
     <string name="bienvenido">¡Benvenuto!</string>
     <string name="mostrar_mapa">Mostrare mappa</string>
+    <string name="aceptar">Accettare</string>
+    <string name="cancelar">Cancellare</string>
+    <string name="selectionMarcadores">Seleziona la quantità di marcatori per tappa:</string>
+    <string name="informacionCeldas">Informazioni delle celle</string>
+    <string name="celdaCI">Cella CI:</string>
+    <string name="establecido">Impostato a:</string>
 </resources>

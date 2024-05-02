@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         showInfoButton.setText(R.string.mostrar_informacion2);
         showMapButton.setText(R.string.mostrar_mapa);
         titleButton.setText(R.string.bienvenido);
-        mapViewButton.setText(R.string.mostrar_mapa);
+        //mapViewButton.setText(R.string.mostrar_mapa);
 
     }
 

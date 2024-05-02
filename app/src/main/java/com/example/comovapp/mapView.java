@@ -99,23 +99,23 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
     private void showThresholdDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Seleccione la cantidad de marcadores por etapa:");
+        builder.setTitle(getString(R.string.selectionMarcadores));
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         builder.setView(input);
 
-        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.aceptar), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(!input.getText().toString().isEmpty()) {
                     STAGE_THRESHOLD = Integer.parseInt(input.getText().toString());
                     isThresholdSet = true;
-                    Toast.makeText(mapView.this, "Establecido en: " + STAGE_THRESHOLD, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mapView.this, getString(R.string.establecido) + " " + STAGE_THRESHOLD, Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.cancelar), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -262,7 +262,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             LatLng currentLocation = new LatLng(mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude());
             int signalStrength = telephonyData.getCelldbm();
             mMap.addMarker(new MarkerOptions()
-                    .title("Información de las celdas")
+                    .title(getString(R.string.informacionCeldas))
                     .snippet(telephonyData.getInfo())
                     .position(currentLocation)
                     .flat(true)
@@ -382,13 +382,13 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                                     if(fourGcell.isRegistered()) {
                                         mMap.addMarker(new MarkerOptions()
                                                 .position(cellLocation)
-                                                .title("Celda CI:" + fourGcell.getCI())
+                                                .title(getString(R.string.celdaCI) + fourGcell.getCI())
                                                 .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
                                                 .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmapRegistered)));
                                     }else {
                                         mMap.addMarker(new MarkerOptions()
                                                 .position(cellLocation)
-                                                .title("Celda CI:" + fourGcell.getCI())
+                                                .title(getString(R.string.celdaCI) + fourGcell.getCI())
                                                 .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
                                                 .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
                                     }
