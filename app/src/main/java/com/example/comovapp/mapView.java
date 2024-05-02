@@ -99,13 +99,13 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
     private void showThresholdDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Seleccione la cantidad de marcadores por etapa:");
+        builder.setTitle(getString(R.string.selectionMarcadores));
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         builder.setView(input);
 
-        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.aceptar), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(!input.getText().toString().isEmpty()) {
@@ -115,7 +115,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                 }
             }
         });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.cancelar), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -294,7 +294,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                 Log.e("Control", "He llegado al sitio: el title es: " + marker.getTitle());
                 if (!Objects.equals(marker.getTitle(), "Celda CI:")){
                     // Call function to show dialog
-                    marker.setTitle("Información de las celdas");
+                    marker.setTitle(getString(R.string.informacionCeldas));
                     marker.setSnippet(telephonyData.getInfo());
                     showDialog(marker.getTitle(), marker.getSnippet());
                 }else{
@@ -383,7 +383,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                                 if (mMap != null) {
                                     mMap.addMarker(new MarkerOptions()
                                             .position(cellLocation)
-                                            .title("Celda CI:" + fourGcell.getCI())
+                                            .title(getString(R.string.celdaCI) + fourGcell.getCI())
                                             .snippet("Lat: " + apiResponse.data.lat + "\nLon: " + apiResponse.data.lon + "\n" + "Cell info:\n\n" + fourGcell.toString())
                                             .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
                                 }

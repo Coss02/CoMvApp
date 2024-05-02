@@ -5,4 +5,9 @@
     <string name="mostrar_informacion2">Mostrar información</string>
     <string name="bienvenido">¡Bienvenido!</string>
     <string name="mostrar_mapa">Mostrar mapa</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="selectionMarcadores">Seleccione la cantidad de marcadores por etapa:</string>
+    <string name="informacionCeldas">Información de las celdas</string>
+    <string name="celdaCI">Celda CI:</string>
 </resources>
