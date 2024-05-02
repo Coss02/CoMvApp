@@ -2,54 +2,24 @@ package com.example.comovapp;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.telephony.CellIdentityCdma;
-import android.telephony.CellIdentityGsm;
-import android.telephony.CellIdentityLte;
-import android.telephony.CellIdentityNr;
-import android.telephony.CellIdentityWcdma;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellInfoLte;
-import android.telephony.CellInfoNr;
-import android.telephony.CellInfoWcdma;
-import android.telephony.CellSignalStrengthCdma;
-import android.telephony.CellSignalStrengthGsm;
-import android.telephony.CellSignalStrengthLte;
-import android.telephony.CellSignalStrengthNr;
-import android.telephony.CellSignalStrengthWcdma;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
-import android.Manifest;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.comovapp.cell.Cell;
-import com.example.comovapp.cell.CellCDMA;
-import com.example.comovapp.cell.CellGSM;
-import com.example.comovapp.cell.CellLTE;
-import com.example.comovapp.cell.CellNR;
-import com.example.comovapp.cell.CellWCDMA;
-import com.example.comovapp.terminalinfo.TerminalInfo;
-
 //import org.chromium.net.CronetEngine;
 
-import java.util.ArrayList;
-import java.util.Collection;
 //import java.util.Iterator;
-import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -69,6 +39,38 @@ public class MainActivity extends AppCompatActivity {
         this.telephonyData = new TelephonyData(this);
         ImageButton it = findViewById(R.id.italianButton);
         ImageButton es = findViewById(R.id.spanishButton);
+
+        it.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLanguage("it");
+            }
+        });
+        es.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLanguage("es");
+            }
+        });
+    }
+    private void changeLanguage(String language) {
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+
+        // Update the locale for the application context
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+
+        TextView showInfoButton = findViewById(R.id.showInformationButt);
+        TextView showMapButton = findViewById(R.id.showMapButt);
+        TextView titleButton = findViewById(R.id.titleText);
+        TextView mapViewButton = findViewById(R.id.mapViewInformationButton);
+        showInfoButton.setText(R.string.mostrar_informacion2);
+        showMapButton.setText(R.string.mostrar_mapa);
+        titleButton.setText(R.string.bienvenido);
+        mapViewButton.setText(R.string.mostrar_mapa);
+
     }
 
     private void resetTelephonyData(){

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">CoMovApp</string>
     <string name="title_activity_map_view">mapView</string>
-    <string name="mostrar_informacion">Mostrare Informazioni</string>
+    <string name="mostrar_informacion2">Mostrare Informazioni</string>
     <string name="bienvenido">¡Benvenuto!</string>
     <string name="mostrar_mapa">Mostrare mappa</string>
 </resources>
