@@ -65,11 +65,9 @@ public class MainActivity extends AppCompatActivity {
         TextView showInfoButton = findViewById(R.id.showInformationButt);
         TextView showMapButton = findViewById(R.id.showMapButt);
         TextView titleButton = findViewById(R.id.titleText);
-        TextView mapViewButton = findViewById(R.id.mapViewInformationButton);
         showInfoButton.setText(R.string.mostrar_informacion2);
         showMapButton.setText(R.string.mostrar_mapa);
         titleButton.setText(R.string.bienvenido);
-        //mapViewButton.setText(R.string.mostrar_mapa);
 
     }
 

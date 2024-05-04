@@ -145,8 +145,63 @@ public class TelephonyData {
     }
 
     private String telephonyInfo() {
-        return "Voice Network Type: " + this.terminalInfo.getVoiceNetworkType() + "\n" +
-                "Data Network Type: " + this.terminalInfo.getDataNetworkType() + "\n" +
+        String VNT = "";
+        String DNT = "";
+        switch (this.terminalInfo.getVoiceNetworkType()){
+            case 1:
+                VNT = "GPRS";
+                break;
+            case 2:
+                VNT = "EDGE";
+                break;
+            case 3:
+                VNT = "UMTS";
+                break;
+            case 4:
+                VNT = "CDMA";
+                break;
+            case 5:
+                VNT = "EVDO";
+                break;
+            case 13:
+                VNT = "LTE";
+                break;
+            case 20:
+                VNT = "NR";
+                break;
+            default:
+                VNT = String.valueOf(terminalInfo.getVoiceNetworkType());
+                break;
+
+        }
+        switch (this.terminalInfo.getDataNetworkType()){
+            case 1:
+                DNT = "GPRS";
+                break;
+            case 2:
+                DNT = "EDGE";
+                break;
+            case 3:
+                DNT = "UMTS";
+                break;
+            case 4:
+                DNT = "CDMA";
+                break;
+            case 5:
+                DNT = "EVDO";
+                break;
+            case 13:
+                DNT = "LTE";
+                break;
+            case 20:
+                DNT = "NR";
+                break;
+            default:
+                DNT = String.valueOf(terminalInfo.getDataNetworkType());
+                break;
+        }
+        return "Voice Network Type: " + VNT + "\n" +
+                "Data Network Type: " + DNT + "\n" +
                 "Network Operator Name: " + this.telephonyManager.getNetworkOperatorName() + "\n" +
                 "\n" +
                 cellInfo() + "\n";
