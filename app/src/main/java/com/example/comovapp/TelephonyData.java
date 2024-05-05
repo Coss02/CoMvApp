@@ -62,6 +62,7 @@ public class TelephonyData {
 
     private Collection<Cell> showCellInfo() {
         Collection<Cell> cells = new ArrayList<>();
+        //Permisos
         if (ActivityCompat.checkSelfPermission(this.activity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this.activity, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
                 Log.i("TelephonyActivity", "Should show rationale");
@@ -73,12 +74,13 @@ public class TelephonyData {
             }
             return cells;
         }
+        //Leemos las celdas
         List<CellInfo> cellInfoList = telephonyManager.getAllCellInfo();
+        //Las guardamos según cada tipo
         for (CellInfo cellInfo : cellInfoList) {
             if (cellInfo instanceof CellInfoGsm) { //2G
                 CellSignalStrengthGsm signalStrengthGsm = ((CellInfoGsm) cellInfo).getCellSignalStrength();
                 CellIdentityGsm identityGsm = ((CellInfoGsm) cellInfo).getCellIdentity();
-                // Concatenate GSM-specific info
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     CellGSM cellGSM = new CellGSM(identityGsm.getCid(), identityGsm.getLac(), signalStrengthGsm.getRssi(), signalStrengthGsm.getLevel(), cellInfo.isRegistered());
                     cells.add(cellGSM);
@@ -89,25 +91,20 @@ public class TelephonyData {
             } else if (cellInfo instanceof CellInfoCdma) { //2G
                 CellSignalStrengthCdma signalStrengthCdma = ((CellInfoCdma) cellInfo).getCellSignalStrength();
                 CellIdentityCdma identityCdma = ((CellInfoCdma) cellInfo).getCellIdentity();
-                // Concatenate CDMA-specific info
                 CellCDMA cellCDMA = new CellCDMA(identityCdma.getNetworkId(), identityCdma.getSystemId(), identityCdma.getBasestationId(), signalStrengthCdma.getDbm(), signalStrengthCdma.getLevel(), cellInfo.isRegistered());
                 cells.add(cellCDMA);
             } else if (cellInfo instanceof CellInfoWcdma) { //3G
                 CellSignalStrengthWcdma signalStrengthWcdma = ((CellInfoWcdma) cellInfo).getCellSignalStrength();
                 CellIdentityWcdma identityWcdma = ((CellInfoWcdma) cellInfo).getCellIdentity();
-                // Concatenate WCDMA-specific info
                 CellWCDMA cellWCDMA = new CellWCDMA(identityWcdma.getCid(), identityWcdma.getLac(), identityWcdma.getPsc(), signalStrengthWcdma.getDbm(), signalStrengthWcdma.getLevel(), cellInfo.isRegistered());
                 cells.add(cellWCDMA);
             } else if (cellInfo instanceof CellInfoLte) { //4G
                 CellSignalStrengthLte signalStrengthLte = ((CellInfoLte) cellInfo).getCellSignalStrength();
                 CellIdentityLte identityLte = ((CellInfoLte) cellInfo).getCellIdentity();
-                // Concatenate LTE-specific info
                 CellLTE cellLTE = new CellLTE(identityLte.getCi(), identityLte.getMcc(), identityLte.getMnc(), identityLte.getTac(), identityLte.getPci(), signalStrengthLte.getDbm(), signalStrengthLte.getLevel(), cellInfo.isRegistered());
                 cells.add(cellLTE);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { //5G
                 if (cellInfo instanceof CellInfoNr) {
-                    // 5G NR information concatenation would go here - Requires API 29 and above
-                    // Since 5G specifics are more complex and API dependent, we'll keep this generic
                     CellInfoNr cellInfoNr = (CellInfoNr) cellInfo;
                     CellIdentityNr id = (CellIdentityNr) cellInfoNr.getCellIdentity();
                     CellNR cellNR = new CellNR((int) id.getNci(), id.getMccString(), id.getMncString(), id.getTac(), cellInfoNr.getCellSignalStrength().getDbm(), cellInfoNr.getCellSignalStrength().getLevel(), cellInfo.isRegistered());

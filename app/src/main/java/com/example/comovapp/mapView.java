@@ -55,12 +55,12 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     private TelephonyData telephonyData;
     private ActivityMapViewBinding binding;
     private int buttonPressCount = 0;
-    private int STAGE_THRESHOLD = 10;  // Impostato come valore di default
+    private int STAGE_THRESHOLD = 10;  // Establecido como valor por defecto
     private ArrayList<ArrayList<Cell>> fullStage = new ArrayList<>(); //Contenido de stage (cuando hemos obtenido un número STAGE_THRESHOLD de stageMarkers)
     private ArrayList<JsonObject> fullStagesDocument = new ArrayList<>(); //Contenido completo del documento con etapas
     private JsonArray fullNoStagesDocument = new JsonArray(); //Contenido completo del documento sin etapas
     private int stageCounter = 1;
-    private boolean isThresholdSet = false;  // Flag per verificare se il threshold è già stato impostato
+    private boolean isThresholdSet = false;  // Flag para verificar si el threshold ya se ha establecido
     private int cellCount = 0;  // Contador con el número de celdas del documento
 
 
@@ -85,8 +85,8 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     showThresholdDialog();
                 } else {
                     resetTelephonyData();
-                    addMarkerAtCurrentLocation();  // Questo aggiungerà anche il marker e incrementerà il markerCount
-                    fetchCellLocation();  // Fetch API data when activity starts
+                    addMarkerAtCurrentLocation();  // Esto añadirá un marker y lo añadirá al markercount
+                    fetchCellLocation();  // Busca datos en la API cuando la actividad se inicia
                     addCellsToFile();
                 }
             }
@@ -143,7 +143,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         ArrayList<Cell> stageData = new ArrayList<>();
-        //int counter = 0;
         for (Cell cell : telephonyData.getCells()) {
             jsonObject.add("cell " + cellCount++, gson.toJsonTree(cell).getAsJsonObject());
             fullNoStagesDocument.add(jsonObject);
@@ -151,7 +150,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             stageData.add(cell);
         }
         try (FileWriter writer = new FileWriter(file)) {
-            //writer.append(gson.toJson(jsonObject));
             writer.write(gson.toJson(fullNoStagesDocument));
             writer.close();
             Log.d("File Success", "Data written successfully to file");
@@ -162,28 +160,28 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         buttonPressCount++;
         if (buttonPressCount >= STAGE_THRESHOLD) {
             saveStageData();
-            buttonPressCount = 0; // Reset the counter
+            buttonPressCount = 0; // Resetea el contador
             fullStage.clear();
         }
     }
 
     private void saveStageData() {
-        // Ensures directory exists and is ready for file operations
+        // Se asegura de que existe el directorio y está preparado para realizar operaciones
         File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "comovapp");
         if (!storageDir.exists() && !storageDir.mkdirs()) {
             Log.e("File Error", "Failed to create directory");
             return;
         }
 
-        // Define the file for stage data
+        // Define el stageData.json
         String stageFileName = "stagesData.json";
         File stageFile = new File(storageDir, "stagesData.json");
         Gson gson = new Gson();
 
 
-        // Crea un array JSON per le celle di questa tappa.
+        // Crea un array JSON para la celda de esta etapa.
         JsonObject markerData = new JsonObject();
-        JsonObject allMarkersData = new JsonObject();  // Crea un JsonObject per mantenere i dati di tutti i marker
+        JsonObject allMarkersData = new JsonObject();  // Crea un JsonObject para mantener los datos de todos los marcadores
         JsonObject stage = new JsonObject();
         int markerIndex = 1;
         int cellIndex = 1;
@@ -226,7 +224,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
             }
         }
 
-        // Delete stagesData.json if it exists
+        // Borra stagesData.json si existe
         if (stageFile.exists()) {
             if (!stageFile.delete()) {
                 Log.e("File Error", "Failed to delete stagesData.json");
@@ -235,7 +233,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         }
 
         try {
-            // Recreate the files
+            // Volvemos a crear los ficheros
             jsonFile.createNewFile();
             stageFile.createNewFile();
         } catch (IOException e) {
@@ -243,11 +241,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         }
     }
 
-
-
-    /**
-     * Checks if external storage is available for read and write
-     */
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
@@ -287,13 +280,11 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         mMap = googleMap;
         showPosition();
         googleMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.setPadding(0, 0, 0, 100);  // Adjust padding (left, top, right, bottom)
+        mMap.setPadding(0, 0, 0, 100);
 
-        // Set a marker click listener
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                Log.e("Control", "He llegado al sitio: el title es: " + marker.getTitle());
                 showDialog(marker.getTitle(), marker.getSnippet());
                 return true;
             }
@@ -301,14 +292,12 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private void showDialog(String title, String snippet) {
-        // Create and show the dialog
         new AlertDialog.Builder(mapView.this)
                 .setTitle(title)
                 .setMessage(snippet)
 
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // Close the dialog
                         dialog.dismiss();
                     }
                 })
@@ -318,9 +307,9 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
 
 
     private void showPosition() {
-        // Check permissions
+        // Comprobar permisos
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Request permissions to user (pop-up)
+            // Solicitar permisos al usuario con un diálogo
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION
             }, 0);
@@ -329,15 +318,7 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         mMap.setMyLocationEnabled(true);
     }
 
-    /**
-     *
-     * @param requestCode The request code passed in requestPermissions()
-     * @param permissions The requested permissions. Never null.
-     * @param grantResults The grant results for the corresponding permissions
-     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
-     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
-     *
-     */
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -360,7 +341,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
         Collection<CellLTE> fourGcells = telephonyData.get4GCells();
         ApiService apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
         for(CellLTE fourGcell : fourGcells) {
-            Log.e("CELDA IDENTIDAD BUCLE", fourGcell.getCI() + " ");
             Call<ApiResponse> call = apiService.getCellLocation("1.1", "open", fourGcell.getMCC(), fourGcell.getMNC(), fourGcell.getTAC(), fourGcell.getCI());
             call.enqueue(new Callback<ApiResponse>() {
                 @Override
@@ -368,7 +348,6 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                     if (response.isSuccessful() && response.body() != null) {
                         ApiResponse apiResponse = response.body();
                         LatLng cellLocation = new LatLng(apiResponse.data.lat, apiResponse.data.lon);
-                        Log.e("COORDENADAS", apiResponse.data.lat + " " + apiResponse.data.lon);
                         // Adding the marker with a custom icon on the map
                         // Resize the icon
                         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);

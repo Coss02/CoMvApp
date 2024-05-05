@@ -4,9 +4,9 @@ import androidx.annotation.NonNull;
 
 public class Cell {
     private int Gen; //Generación (5G,2G,etc)
-    private int RSSI; //fuerza de señal recibida
+    private int RSSI; //Potencia de señal recibida
     private int LEVEL;
-    private boolean isRegistered;
+    private boolean isRegistered; // Se está usando la celda o no
 
     public Cell(int Gen, int RSSI, int LEVEL, boolean isRegistered) {
         this.Gen = Gen;
