@@ -351,9 +351,9 @@ public class mapView extends FragmentActivity implements OnMapReadyCallback {
                         // Adding the marker with a custom icon on the map
                         // Resize the icon
                         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_cell_tower);
-                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 100, 100, false); // Adjust width and height as needed
+                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, 100, 100, false);
                         Bitmap imageBitmapRegistered = BitmapFactory.decodeResource(getResources(), R.drawable.antena_registrada);
-                        Bitmap resizedBitmapRegistered = Bitmap.createScaledBitmap(imageBitmapRegistered, 100, 100, false); // Adjust width and height as needed
+                        Bitmap resizedBitmapRegistered = Bitmap.createScaledBitmap(imageBitmapRegistered, 100, 100, false);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
